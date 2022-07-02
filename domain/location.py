@@ -1,3 +1,6 @@
+from typing_extensions import Self
+
+
 class Location:
     def __init__(self, lng, lat):
         self.lat = lat
