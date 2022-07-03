@@ -139,10 +139,55 @@ def clear_points(route, generated):
 
         for p in generated_points:
                  if original_polygon.intersects(p):
-                        print("%f %f" % (p.y, p.x))
+                        # print("%f %f" % (p.y, p.x))
                         point = {"lat": p.y, "lng": p.x}
                         location = Location(p.x, p.y)
                         final_points.append(location)
 
         return final_points
 
+def generate_final_points(meter_offset, size, cleared_points, square):
+    max_size = 0
+    final_points = list()
+
+    p = 0
+    for i in range(meter_offset, size, meter_offset):
+
+        row = list()
+        missing_points_count = 0
+        q = 0
+        
+        for j in range(meter_offset, size, meter_offset):
+            point = square[p][q]
+
+            if point in cleared_points:
+                row.append(point)
+            else:
+                missing_points_count+=1
+
+            q+=1
+    
+        final_points.append(row)
+    
+        if missing_points_count > max_size:
+            max_size = missing_points_count
+        p+=1
+    
+    lattice = list()
+
+    for i in range(max_size):
+        for j in range(len(final_points[i])):
+            if len(final_points[i]) % 2 != 0 and j == len(final_points[i]) - 1:
+                     break
+            if j == len(final_points[i]) - 1:
+                prev_point = final_points[i][j-1]
+                curr_point = final_points[i][j]
+                dist = find_distance(prev_point.lng, prev_point.lat, curr_point.lng, curr_point.lat)
+                if dist > 5: 
+                    if (len(lattice) % 2 != 0):
+                        pass
+                    break
+            final_point = final_points[i][j]
+            lattice.append(final_point)
+    return lattice   
+   

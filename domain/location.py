@@ -10,7 +10,7 @@ class Location:
         if not isinstance(other, Location):
             return False
 
-        return self.lng == other.lat and self.lat == other.lat
+        return self.lng == other.lng and self.lat == other.lat
 
     def __hash__(self):
         return hash((self.lng, self.lat))
