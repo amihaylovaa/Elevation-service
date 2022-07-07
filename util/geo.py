@@ -215,55 +215,55 @@ def generate_final_points(meter_offset, size, cleared_points, square):
         if i != (len(lattice) - 1):
             if len(lattice[i]) != len(lattice[i + 1]) and len(lattice[i]) < len(lattice[i + 1]):
                 len_diff = len(lattice[i + 1]) - len(lattice[i])
-                if len_diff % 2 != 0:
+                if len_diff % 2 != 0 and len(lattice[i]) - 1 != 1:
                     for j in range(0, len(lattice[i]) - 1, 1):
-                        if (j == len(lattice) - 1):
+                        if (j == len(lattice[i]) - 1):
                             prev_point = lattice[i][j - 1]
                             distance = find_distance(prev_point.lng, prev_point.lat, lattice[i][j].lng, lattice[i][j].lat)
-                            if(distance > 5):
+                            if(distance > 5.5):
                                 break
                         final_points.append(lattice[i][j])
                 else:
                     for j in range(0, len(lattice[i]), 1):
-                        if (j == len(lattice) - 1):
+                        if (j == len(lattice[i]) - 1):
                             prev_point = lattice[i][j - 1]
                             distance = find_distance(prev_point.lng, prev_point.lat, lattice[i][j].lng, lattice[i][j].lat)
-                            if(distance > 5):
+                            if(distance > 5.5):
                                 break
                         final_points.append(lattice[i][j])
             else:
                 for j in range(0, len(lattice[i]), 1):
-                    if (j == len(lattice) - 1):
+                    if (j == len(lattice[i]) - 1):
                             prev_point = lattice[i][j - 1]
                             distance = find_distance(prev_point.lng, prev_point.lat, lattice[i][j].lng, lattice[i][j].lat)
-                            if(distance > 5):
+                            if (distance > 5.5):
                                 break
                     final_points.append(lattice[i][j])
         else:
             if len(lattice[i]) != len(lattice[i - 1]) and len(lattice[i]) < len(lattice[i - 1]):
                 len_diff = len(lattice[i - 1]) - len(lattice[i])
-                if len_diff % 2 != 0:
+                if len_diff % 2 != 0 and len(lattice[i]) - 1 != 1:
                    for j in range(0, len(lattice[i]) - 1, 1):
-                        if (j == len(lattice) - 1):
+                        if (j == len(lattice[i]) - 1):
                             prev_point = lattice[i][j - 1]
                             distance = find_distance(prev_point.lng, prev_point.lat, lattice[i][j].lng, lattice[i][j].lat)
-                            if distance > 5:
+                            if distance > 5.5:
                                 break
                         final_points.append(lattice[i][j])
                 else:
                     for j in range(0, len(lattice[i]), 1):
-                        if (j == len(lattice) - 1):
+                        if (j == len(lattice[i]) - 1):
                             prev_point = lattice[i][j - 1]
                             distance = find_distance(prev_point.lng, prev_point.lat, lattice[i][j].lng, lattice[i][j].lat)
-                            if(distance > 5):
+                            if(distance > 5.5):
                                 break
                         final_points.append(lattice[i][j])
             else:
                 for j in range(0, len(lattice[i]), 1):
-                        if (j == len(lattice) - 1):
+                        if (j == len(lattice[i]) - 1):
                             prev_point = lattice[i][j - 2]
                             distance = find_distance(prev_point.lng, prev_point.lat, lattice[i][j].lng, lattice[i][j].lat)
-                            if distance > 5:
+                            if distance > 5.5:
                                 break
                         final_points.append(lattice[i][j])
 
