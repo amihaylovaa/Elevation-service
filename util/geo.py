@@ -167,52 +167,6 @@ def get_edge_points(route, generated_points):
 
         return edge_points
 
-# def generate_final_points(meter_offset, size, cleared_points, square):
-#     max_size = 0
-#     final_points = list()
-
-#     p = 0
-#     for i in range(meter_offset, size, meter_offset):
-
-#         row = list()
-#         missing_points_count = 0
-#         q = 0
-        
-#         for j in range(meter_offset, size, meter_offset):
-#             point = square[p][q]
-
-#             if point in cleared_points:
-#                 row.append(point)
-#             else:
-#                 missing_points_count+=1
-
-#             q+=1
-    
-#         final_points.append(row)
-    
-#         if missing_points_count > max_size:
-#             max_size = missing_points_count
-#         p+=1
-    
-#     lattice = list()
-
-#     for i in range(max_size):
-#         for j in range(len(final_points[i])):
-#             if len(final_points[i]) % 2 != 0 and j == len(final_points[i]) - 1:
-#                      break
-#             if j == len(final_points[i]) - 1:
-#                 prev_point = final_points[i][j-1]
-#                 curr_point = final_points[i][j]
-#                 dist = find_distance(prev_point.lng, prev_point.lat, curr_point.lng, curr_point.lat)
-#                 if dist > 5: 
-#                     if (len(lattice) % 2 != 0):
-#                         pass
-#                     break
-#             final_point = final_points[i][j]
-#             lattice.append(final_point)
-#     return lattice   
-
-
 def generate_final_points(meter_offset, size, cleared_points, edge_points, square):
     max_size = meter_offset + 0.5
     final_points = list()
@@ -227,29 +181,12 @@ def generate_final_points(meter_offset, size, cleared_points, edge_points, squar
 
             if (current_point in cleared_points):
                 row.append(current_point)
-            q+=1
-        p+=1
+            q += 1
+        p += 1
         lattice.append(row)
         
     for i in range(0, len(lattice), 1):
         if i != (len(lattice) - 1):
-            if len(lattice[i]) != len(lattice[i + 1]) and len(lattice[i]) < len(lattice[i + 1]):
-                len_diff = len(lattice[i + 1]) - len(lattice[i])
-                if len_diff % 2 != 0 and len(lattice[i]) - 1 != 1 and len_diff != 1:
-                    for j in range(0, len(lattice[i]) - 1, 1):
-                        if is_edge_point(lattice[i][j], edge_points) and not should_add_edge_point(i, j, max_size, lattice, len(lattice[i]) - 1):
-                            continue
-                        if j == len(lattice[i]) - 1 and not should_add_last_element(i, j, j-1, max_size, lattice):
-                            break
-                        final_points.append(lattice[i][j])
-                else:
-                    for j in range(0, len(lattice[i]), 1):
-                        if is_edge_point(lattice[i][j], edge_points) and not should_add_edge_point(i, j, max_size, lattice, len(lattice[i])):
-                            continue
-                        if j == len(lattice[i]) - 1 and not should_add_last_element(i, j, j-1, max_size, lattice):
-                            break
-                        final_points.append(lattice[i][j])
-            else:
                 for j in range(0, len(lattice[i]), 1):
                     if is_edge_point(lattice[i][j], edge_points) and not should_add_edge_point(i, j, max_size, lattice, len(lattice[i])):
                             continue
@@ -257,30 +194,12 @@ def generate_final_points(meter_offset, size, cleared_points, edge_points, squar
                             break
                     final_points.append(lattice[i][j])
         else:
-            if len(lattice[i]) != len(lattice[i - 1]) and len(lattice[i]) < len(lattice[i - 1]):
-                len_diff = len(lattice[i - 1]) - len(lattice[i])
-                if len_diff % 2 != 0 and len(lattice[i]) - 1 != 1 and len_diff != 1:
-                   for j in range(0, len(lattice[i]) - 1, 1):
-                        if is_edge_point(lattice[i][j], edge_points) and not should_add_edge_point(i, j, max_size, lattice, len(lattice[i]) -1):
-                            continue
-                        if j == len(lattice[i]) - 1 and not should_add_last_element(i, j, j-1, max_size, lattice):
-                            break
-                        final_points.append(lattice[i][j])
-                else:
-                    for j in range(0, len(lattice[i]), 1):
-                        if is_edge_point(lattice[i][j], edge_points) and not should_add_edge_point(i, j, max_size, lattice, len(lattice[i])):
-                            continue
-                        if j == len(lattice[i]) - 1 and not should_add_last_element(i, j, j-1, max_size, lattice):
-                            break
-                        final_points.append(lattice[i][j])
-            else:
                 for j in range(0, len(lattice[i]), 1):
-                        if is_edge_point(lattice[i][j], edge_points) and not should_add_edge_point(i, j, max_size, lattice, len(lattice[i])):
-                            continue
-                        if j == len(lattice[i]) - 1 and not should_add_last_element(i, j, j-2, max_size, lattice):
-                            break
-                        final_points.append(lattice[i][j])
-
+                    if is_edge_point(lattice[i][j], edge_points) and not should_add_edge_point(i, j, max_size, lattice, len(lattice[i])):
+                        continue
+                    if j == len(lattice[i]) - 1 and not should_add_last_element(i, j, j-2, max_size, lattice):
+                        break
+                    final_points.append(lattice[i][j])
     return final_points
 
 def should_add_last_element(row_idx, col_idx, prev_point_col_idx, max_size, lattice):
@@ -300,21 +219,14 @@ def should_add_edge_point(row_idx, col_idx, max_size, lattice, lat_size):
     if row_idx == 0:
         down_point = lattice[row_idx + 1][col_idx]
         down_distance = find_distance(current_point.lng, current_point.lat, down_point.lng, down_point.lat)
+
         if down_distance > max_size:
             return False
         return True
-    elif row_idx == lat_size:
+    if row_idx == lat_size:
         upper_point = lattice[row_idx - 1][col_idx]
         upper_distance = find_distance(current_point.lng, current_point.lat, upper_point.lng, upper_point.lat)
-        if upper_distance > max_size:
-            return False
-        return True
-    else:
-        upper_point = lattice[row_idx - 1][col_idx]
-        down_point = lattice[row_idx + 1][col_idx]
-        upper_distance = find_distance(current_point.lng, current_point.lat, upper_point.lng, upper_point.lat)
-        down_distance = find_distance(current_point.lng, current_point.lat, down_point.lng, down_point.lat)
 
-        if upper_distance > max_size or down_distance > max_size:
+        if upper_distance > max_size:
             return False
         return True
