@@ -20,9 +20,10 @@ def add_elevation_element(root, approximated_elevations):
 
 def replace_existing_track_points(root, generated_track_points, approximated_elevations):
     idx = 0
-    track_points = root.findall('.//{http://www.topografix.com/GPX/1/1}trkpt')
-    for track in track_points:
-       root.remove(track)
+    trk_segs = root.findall('.//{http://www.topografix.com/GPX/1/1}trkseg')
+    for trk_seg in trk_segs:
+        for track in trk_seg.findall('.//{http://www.topografix.com/GPX/1/1}trkpt'):
+            trk_seg.remove(track)
     
     idx = 0
     generated_elements = list()

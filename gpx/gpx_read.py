@@ -19,7 +19,6 @@ def extract_elevation(root):
        elevations = list()
 
        for element in root.findall('.//{http://www.topografix.com/GPX/1/1}ele'):
-                print(float(element.text))
                 elevation = float(element.text)
                 elevations.append(elevation)
        return elevations
