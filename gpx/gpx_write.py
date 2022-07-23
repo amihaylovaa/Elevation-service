@@ -40,3 +40,16 @@ def replace_existing_track_points(root, generated_track_points, approximated_ele
                 ele = ET.SubElement(track_point_element, "ele")
                 ele.text = str(approximated_elevations[idx])
             idx = idx + 1
+
+
+def add_track_points(root, generated_track_points, approximated_elevations):
+    idx = 0
+    track_segments = root.findall('.//{http://www.topografix.com/GPX/1/1}trkseg')
+    last_track_segments = track_segments[len(track_segments) - 1]
+    
+    for track_point in generated_track_points:
+        if idx == 0:
+            track_point_element = ET.SubElement(last_track_segments, "trkpt", lat = str(track_point.lat), lon = str(track_point.lng))
+            ele = ET.SubElement(track_point_element, "ele")
+            ele.text = str(approximated_elevations[idx])
+            idx = idx + 1
