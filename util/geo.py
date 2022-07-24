@@ -259,15 +259,23 @@ def get_final_points(meter_offset, size, max_size, lattice):
 
     for i in range(0, len(lattice), 1):
         if len(lattice[i]) <= 1:
-            return list()            
+            if i == 0 or i == len(lattice) - 1:
+                continue
+            else:
+                return list()
 
+        added_points_count = 0
         for j in range(0, len(lattice[i]) - 1, 1):
             current_point = lattice[i][j]
             next_point = lattice[i][j + 1]
             dist = find_distance(current_point.lng, current_point.lat, next_point.lng, next_point.lat)
-            print(dist)
             
             if  dist <= max_size:
                 final_points.append(current_point)
+                added_points_count = added_points_count + 1
         final_points.append(lattice[i][len(lattice[i]) - 1])
+        added_points_count = added_points_count + 1
+        if added_points_count < len(lattice[i]):
+            return list()
+            
     return final_points
