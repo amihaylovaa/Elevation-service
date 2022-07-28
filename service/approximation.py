@@ -1,6 +1,4 @@
-from util.geo import find_distance
-
-def approximate(dem_results, generated_points):
+def get_approximated_elevations(dem_results, generated_points):
     srtm_30m = dem_results['srtm30m']
     srtm_90m = dem_results['srtm90m']
     aw_3d_30m = dem_results['aw3d30m']

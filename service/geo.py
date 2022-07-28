@@ -1,5 +1,4 @@
-from math import radians, cos, sin, asin, sqrt, atan2, degrees, pi
-from pyparsing import col
+from math import radians, cos, sin, asin, sqrt, atan2, degrees
 from shapely.geometry import Point, Polygon
 from domain.location import Location
 
@@ -8,7 +7,7 @@ def get_bounding_box(route):
     min_lng = 180.0
     max_lat = 0.0
     max_lng = 0.0
-    boundingBox = {}
+    bounding_box = {}
     
     for point in route:
         lat = point.lat
@@ -26,10 +25,10 @@ def get_bounding_box(route):
         if max_lng < lng:
             max_lng = lng
 
-    boundingBox['south-west'] = Location(min_lng, min_lat)
-    boundingBox['north-east'] = Location(max_lng, max_lat)
+    bounding_box['south-west'] = Location(min_lng, min_lat)
+    bounding_box['north-east'] = Location(max_lng, max_lat)
 
-    return boundingBox
+    return bounding_box
     
 def get_lattice_size(bounding_box):
     min_location = bounding_box["south-west"]
@@ -105,18 +104,6 @@ def generate_points(meter_offset, size, route, bounding_box):
     
         square.append(row)
     return square
-
-def move_point(location, range, bearing):
-    lat = radians(location.lat)
-    lng = radians(location.lng)
-    angular_distance = range / 6_371_000.00
-
-    new_lat = asin(sin(lat) * cos(angular_distance) + cos(lat) * sin(angular_distance) * bearing)
-    d_lng = atan2(sin(bearing) * sin(angular_distance) * cos(lat), cos(angular_distance) - sin(lat) * sin(lat) )
-
-    new_lng = ((lng + d_lng + pi) % (pi * 2)) - pi
-
-    return Location(degrees(new_lng), degrees(new_lat))
 
 def convert_to_list(generated_points):
     points_list = list()
