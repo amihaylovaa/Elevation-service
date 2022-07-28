@@ -8,13 +8,13 @@ SENDER_PASSWORD = ''
 
 def send_email(recipient, file_name, file_content):
         msg = MIMEMultipart()
+        part = MIMEApplication(file_content)
         msg['From'] = SENDER
         msg['To'] = recipient
         msg['Subject'] = 'Elevation service'
         message = 'Generated file'
-        msg.attach(MIMEText(message))
-        part = MIMEApplication(file_content)
         part['Content-Disposition'] = 'attachment; filename="%s"' % file_name
+        msg.attach(MIMEText(message))
         msg.attach(part)
 
         server = smtplib.SMTP_SSL("smtp.gmail.com", 465)
