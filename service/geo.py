@@ -1,6 +1,7 @@
 from math import radians, cos, sin, asin, sqrt, atan2, degrees
 from shapely.geometry import Point, Polygon
 from domain.location import Location
+from service.email import send_error_email
 
 def get_bounding_box(route):
     min_lat = 180.0
@@ -30,12 +31,12 @@ def get_bounding_box(route):
 
     return bounding_box
     
-def get_lattice_size(bounding_box):
+def calculate_lattice_size(bounding_box):
     min_location = bounding_box["south-west"]
     max_location = bounding_box["north-east"]
     bounding_box_width = max_location.lat - min_location.lat   
     diagonal = find_distance(min_location.lng, min_location.lat, max_location.lng, max_location.lat)
-    bounding_box_width_in_meters = 111_111.0 * bounding_box_width # // circumfirence / 360 // 15.584
+    bounding_box_width_in_meters = 111_111.0 * bounding_box_width
     bounding_box_height_in_meters = sqrt(diagonal * diagonal - bounding_box_width_in_meters * bounding_box_width_in_meters)
 
     return bounding_box_height_in_meters if bounding_box_height_in_meters > bounding_box_width_in_meters else bounding_box_width_in_meters
@@ -78,7 +79,7 @@ def calculate_next_point(prev_point, offset, bearing):
 
     return Location(degrees(next_point_lng), degrees(next_point_lat))
 
-def generate_points(meter_offset, size, route, bounding_box):
+def generate_lattice(meter_offset, size, route, bounding_box):
     square = list()
     min_location = bounding_box['south-west']
 
@@ -100,7 +101,7 @@ def generate_points(meter_offset, size, route, bounding_box):
             new_lng = calculate_next_point(row[k - 1], meter_offset, bearing).lng
             new_point = Location(new_lng, prev_lat)
             row.append(new_point)
-            k+=1
+            k = k + 1
     
         square.append(row)
     return square
@@ -128,7 +129,6 @@ def clear_points(route, generated):
 
         for p in generated_points:
                  if original_polygon.intersects(p):
-                        # print("%f %f" % (p.y, p.x))
                         point = {"lat": p.y, "lng": p.x}
                         location = Location(p.x, p.y)
                         final_points.append(location)
@@ -232,7 +232,7 @@ def are_last_elements_separated(row_idx, col_idx, prev_point_col_idx, max_size, 
 def should_add_last_element(row_idx, prev_row_idx, col_idx, max_size, lattice):
     prev_point = lattice[prev_row_idx][len(lattice[prev_row_idx]) - 1]
     distance = find_distance(prev_point.lng, prev_point.lat, lattice[row_idx][col_idx].lng, lattice[row_idx][col_idx].lat)
-    print(distance)
+
     if distance < max_size:
         return True
     else:
@@ -241,7 +241,7 @@ def should_add_last_element(row_idx, prev_row_idx, col_idx, max_size, lattice):
         else:
             return False
 
-def get_final_points(meter_offset, size, max_size, lattice):
+def validate_lattice(email, max_size, lattice):
     final_points = list()
 
     for i in range(0, len(lattice), 1):
@@ -249,7 +249,7 @@ def get_final_points(meter_offset, size, max_size, lattice):
             if i == 0 or i == len(lattice) - 1:
                 continue
             else:
-                return list()
+               return send_error_email(email, 'Cannot generate lattice for the given route.')
 
         added_points_count = 0
         for j in range(0, len(lattice[i]) - 1, 1):
@@ -263,6 +263,6 @@ def get_final_points(meter_offset, size, max_size, lattice):
         final_points.append(lattice[i][len(lattice[i]) - 1])
         added_points_count = added_points_count + 1
         if added_points_count < len(lattice[i]):
-            return list()
-            
+            return send_error_email(email, 'Cannot generate lattice for the given route.')
+
     return final_points
