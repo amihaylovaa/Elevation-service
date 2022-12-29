@@ -1,6 +1,9 @@
+import logging
 from osgeo import gdal
 
 def extract_elevations_from_dem(dem, points):
+        logging.info("Read from DEM")
+
         src_ds = gdal.Open(dem,  gdal.GA_ReadOnly)
         gt = src_ds.GetGeoTransform()
         rb = src_ds.GetRasterBand(1)
@@ -8,10 +11,8 @@ def extract_elevations_from_dem(dem, points):
         pixel_height = gt[5] # n - s (pixel height)
         upper_left_corner_longitude = gt[0]
         upper_left_corner_latitude = gt[3]
-        dem_rows = rb.YSize
-        dem_columns = rb.XSize
         elevations = list()
-
+        
         for p in points:
                 point_latitude = p.lat
                 point_longitude = p.lng
@@ -21,7 +22,7 @@ def extract_elevations_from_dem(dem, points):
                  elevation = rb.ReadAsArray(row, column, 1, 1)
                  elevations.append(int(elevation[0][0]))
                 except:
-                 elevations.append(0.0)
+                 elevations.append(0)
 
 
         src_ds = None
