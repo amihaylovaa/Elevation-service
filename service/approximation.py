@@ -1,12 +1,14 @@
-from util.geo import find_distance
+import logging
 
-def approximate(dem_results, generated_points):
+def get_approximated_elevations(dem_results, track_points):
+    logging.info("Elevation approximation")
+
     srtm_30m = dem_results['srtm30m']
     srtm_90m = dem_results['srtm90m']
     aw_3d_30m = dem_results['aw3d30m']
     elevations = list()
 
-    for i in range(0, len(generated_points), 1):
+    for i in range(0, len(track_points), 1):
         srtm_30m_elevation = srtm_30m[i]
         srtm_90m_elevation = srtm_90m[i]
         aw_3d_30m_elevation = aw_3d_30m[i]
