@@ -17,7 +17,6 @@ def extract_track_points(root):
                locations.append(location)
        return locations
 
-
 def extract_elevation(root):
        logging.info("Elevation extraction")
 

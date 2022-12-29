@@ -1,4 +1,3 @@
-from dis import dis
 import logging
 from math import radians, cos, sin, asin, sqrt, atan2, degrees
 from shapely.geometry import Point, Polygon
