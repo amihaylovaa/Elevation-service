@@ -19,4 +19,5 @@ def get_approximated_elevations(dem_results, track_points):
             elevations.append((srtm_30m_elevation + aw_3d_30m_elevation) / 2.0)
         else:
             elevations.append((srtm_30m_elevation + srtm_90m_elevation + aw_3d_30m_elevation) / 3.0)
+
     return elevations
