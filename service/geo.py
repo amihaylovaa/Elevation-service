@@ -48,7 +48,6 @@ def calculate_lattice_size(bounding_box):
 
     return bounding_box_height_in_meters if bounding_box_height_in_meters > bounding_box_width_in_meters else bounding_box_width_in_meters
 
-
 def find_distance(prev_point_lng, prev_point_lat, current_point_lng, current_point_lat):
     latitude_difference = radians(abs(current_point_lat - prev_point_lat))
     longitude_difference = radians(abs(current_point_lng - prev_point_lng))
@@ -112,6 +111,7 @@ def generate_lattice(meter_offset, size, bounding_box):
             k = k + 1
     
         square_lattice.append(row)
+
     return square_lattice
 
 def convert_to_list(generated_points):
@@ -120,7 +120,8 @@ def convert_to_list(generated_points):
     for i in range(len(generated_points)):
         for j in range(len(generated_points[i])):
             point = Location(generated_points[i][j].lng, generated_points[i][j].lat)
-            points_list.append(point)            
+            points_list.append(point)
+         
     return points_list
 
 def clear_points(route, generated):
@@ -128,7 +129,7 @@ def clear_points(route, generated):
 
         original_polygon = Polygon([[p.lng, p.lat] for p in route ])
 
-        final_points=[]
+        final_points = []
         generated_points = list()
 
         for p in generated:
@@ -163,7 +164,7 @@ def restore_lattice(meter_offset, size, cleared_points, square):
                 row.append(current_point)
             q += 1
         p += 1
-        if(len(row) != 0 and len(row) > 1):
+        if (len(row) != 0 and len(row) > 1):
             lattice.append(row)
         
     for i in range(0, len(lattice), 1):
@@ -186,6 +187,7 @@ def restore_lattice(meter_offset, size, cleared_points, square):
                         break
                     row.append(lattice[i][j])
         final_points.append(row)
+
     return final_points
     
 def should_add_point(row_idx, col_idx, max_offset, lattice, lat_size):
@@ -197,7 +199,7 @@ def should_add_point(row_idx, col_idx, max_offset, lattice, lat_size):
             down_point = lattice[row_idx + 1][col_idx]
             upper_distance = find_distance(current_point.lng, current_point.lat, upper_point.lng, upper_point.lat)
             down_distance = find_distance(current_point.lng, current_point.lat, down_point.lng, down_point.lat)
-            
+
             if upper_distance > max_offset and down_distance > max_offset:
                 return False
             return True
