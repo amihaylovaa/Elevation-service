@@ -3,6 +3,9 @@ from math import radians, cos, sin, asin, sqrt, atan2, degrees
 from shapely.geometry import Point, Polygon
 from domain.location import Location
 
+SOUTH_WEST_COORDINATES = 'south-west'
+NORTH_EAST_COORDINATES = 'north-east'
+
 def get_bounding_box(route):
     logging.info("Bounding box calculation")
 
@@ -28,16 +31,16 @@ def get_bounding_box(route):
         if max_lng < lng:
             max_lng = lng
 
-    bounding_box['south-west'] = Location(min_lng, min_lat)
-    bounding_box['north-east'] = Location(max_lng, max_lat)
+    bounding_box[SOUTH_WEST_COORDINATES] = Location(min_lng, min_lat)
+    bounding_box[NORTH_EAST_COORDINATES] = Location(max_lng, max_lat)
 
     return bounding_box
     
 def calculate_lattice_size(bounding_box):
     logging.info("Lattice size's calculation")
 
-    min_location = bounding_box["south-west"]
-    max_location = bounding_box["north-east"]
+    min_location = bounding_box[SOUTH_WEST_COORDINATES]
+    max_location = bounding_box[NORTH_EAST_COORDINATES]
     bounding_box_width = abs(max_location.lat - min_location.lat)   
     diagonal = find_distance(min_location.lng, min_location.lat, max_location.lng, max_location.lat)
     bounding_box_width_in_meters = 111_111.0 * bounding_box_width
