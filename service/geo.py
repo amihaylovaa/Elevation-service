@@ -146,6 +146,8 @@ def clear_points(route, generated):
 
         return final_points
 
+
+# TODO - refactor
 def restore_lattice(meter_offset, size, cleared_points, square):
     logging.info("Restore lattice")
 
@@ -238,6 +240,7 @@ def should_add_last_element(curr_row_idx, prev_row_idx, col_idx, max_offset, lat
 
     return len(lattice[curr_row_idx]) < len(lattice[prev_row_idx])
 
+# TODO - add more cases
 def validate_lattice(max_offset, lattice):
     logging.info("Lattice validation")
 
