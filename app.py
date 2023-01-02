@@ -1,8 +1,10 @@
 from io import BytesIO
 import logging
+from mimetypes import MimeTypes
 from flask import Flask, Response, request, json, send_file
 from enumeration.dem_data_source import DEMDataSource
 from enumeration.dem_file_name import DemFileName
+from enumeration.mime_type import MimeType
 from gpx.gpx_read import extract_elevation, extract_track_points
 from gpx.gpx_write import add_elevation_element, add_track_points, replace_existing_elevations
 from service.approximation import  get_approximated_elevations
@@ -57,7 +59,7 @@ def get_elevation_linear_route():
         gpx_file.seek(0)
         file_content = gpx_file.read()
 
-        return send_file(BytesIO(file_content), mimetype='application/gpx+xml', as_attachment=True, download_name=gpx_file.filename)
+        return send_file(BytesIO(file_content), mimetype=MimeType.GPX_XML, as_attachment=True, download_name=gpx_file.filename)
 
 @app.route("/elevation-service/closed-contour-route/",  methods=['POST'])
 def get_elevation_closed_contour_route():
@@ -119,11 +121,10 @@ def get_elevation_closed_contour_route():
         tree.write(gpx_file)
         gpx_file.seek(0)
         file_content = gpx_file.read()
-        print(type(file_content))
 
-        return send_file(BytesIO(file_content), mimetype='application/gpx+xml', as_attachment=True, download_name=gpx_file.filename)
+        return send_file(BytesIO(file_content), mimetype=MimeType.GPX_XML, as_attachment=True, download_name=gpx_file.filename)
 
 def send_error_response(message, status_code):
     body = {"message": message, "status_code": status_code}
 
-    return Response(json.dumps(body), status_code, mimetype="application/json")
+    return Response(json.dumps(body), status_code, mimetype=MimeType.JSON)
