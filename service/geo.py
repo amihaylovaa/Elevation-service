@@ -3,6 +3,9 @@ from math import radians, cos, sin, asin, sqrt, atan2, degrees
 from shapely.geometry import Point, Polygon
 from domain.location import Location
 
+SOUTH_WEST_COORDINATES = 'south-west'
+NORTH_EAST_COORDINATES = 'north-east'
+
 def get_bounding_box(route):
     logging.info("Bounding box calculation")
 
@@ -28,23 +31,22 @@ def get_bounding_box(route):
         if max_lng < lng:
             max_lng = lng
 
-    bounding_box['south-west'] = Location(min_lng, min_lat)
-    bounding_box['north-east'] = Location(max_lng, max_lat)
+    bounding_box[SOUTH_WEST_COORDINATES] = Location(min_lng, min_lat)
+    bounding_box[NORTH_EAST_COORDINATES] = Location(max_lng, max_lat)
 
     return bounding_box
     
 def calculate_lattice_size(bounding_box):
     logging.info("Lattice size's calculation")
 
-    min_location = bounding_box["south-west"]
-    max_location = bounding_box["north-east"]
+    min_location = bounding_box[SOUTH_WEST_COORDINATES]
+    max_location = bounding_box[NORTH_EAST_COORDINATES]
     bounding_box_width = abs(max_location.lat - min_location.lat)   
     diagonal = find_distance(min_location.lng, min_location.lat, max_location.lng, max_location.lat)
     bounding_box_width_in_meters = 111_111.0 * bounding_box_width
     bounding_box_height_in_meters = sqrt(diagonal * diagonal - bounding_box_width_in_meters * bounding_box_width_in_meters)
 
     return bounding_box_height_in_meters if bounding_box_height_in_meters > bounding_box_width_in_meters else bounding_box_width_in_meters
-
 
 def find_distance(prev_point_lng, prev_point_lat, current_point_lng, current_point_lat):
     latitude_difference = radians(abs(current_point_lat - prev_point_lat))
@@ -86,7 +88,7 @@ def generate_lattice(meter_offset, size, bounding_box):
     logging.info("Lattice generation")
 
     square_lattice = list()
-    min_location = bounding_box['south-west']
+    min_location = bounding_box[SOUTH_WEST_COORDINATES]
 
     for i in range(meter_offset, size, meter_offset):
         row = list()
@@ -109,6 +111,7 @@ def generate_lattice(meter_offset, size, bounding_box):
             k = k + 1
     
         square_lattice.append(row)
+
     return square_lattice
 
 def convert_to_list(generated_points):
@@ -117,7 +120,8 @@ def convert_to_list(generated_points):
     for i in range(len(generated_points)):
         for j in range(len(generated_points[i])):
             point = Location(generated_points[i][j].lng, generated_points[i][j].lat)
-            points_list.append(point)            
+            points_list.append(point)
+         
     return points_list
 
 def clear_points(route, generated):
@@ -125,7 +129,7 @@ def clear_points(route, generated):
 
         original_polygon = Polygon([[p.lng, p.lat] for p in route ])
 
-        final_points=[]
+        final_points = []
         generated_points = list()
 
         for p in generated:
@@ -142,6 +146,8 @@ def clear_points(route, generated):
 
         return final_points
 
+
+# TODO - refactor
 def restore_lattice(meter_offset, size, cleared_points, square):
     logging.info("Restore lattice")
 
@@ -160,7 +166,7 @@ def restore_lattice(meter_offset, size, cleared_points, square):
                 row.append(current_point)
             q += 1
         p += 1
-        if(len(row) != 0 and len(row) > 1):
+        if (len(row) != 0 and len(row) > 1):
             lattice.append(row)
         
     for i in range(0, len(lattice), 1):
@@ -183,6 +189,7 @@ def restore_lattice(meter_offset, size, cleared_points, square):
                         break
                     row.append(lattice[i][j])
         final_points.append(row)
+
     return final_points
     
 def should_add_point(row_idx, col_idx, max_offset, lattice, lat_size):
@@ -194,6 +201,7 @@ def should_add_point(row_idx, col_idx, max_offset, lattice, lat_size):
             down_point = lattice[row_idx + 1][col_idx]
             upper_distance = find_distance(current_point.lng, current_point.lat, upper_point.lng, upper_point.lat)
             down_distance = find_distance(current_point.lng, current_point.lat, down_point.lng, down_point.lat)
+
             if upper_distance > max_offset and down_distance > max_offset:
                 return False
             return True
@@ -205,30 +213,23 @@ def should_add_point(row_idx, col_idx, max_offset, lattice, lat_size):
 def should_add_first_element(curr_row_idx, row_idx, col_idx, max_offset, lattice):
     point = lattice[row_idx][col_idx]
     distance = find_distance(point.lng, point.lat, lattice[curr_row_idx][col_idx].lng, lattice[curr_row_idx][col_idx].lat)
+    
     if distance > max_offset:
         return False
-    else:
-        if len(lattice[curr_row_idx]) < len(lattice[row_idx]):
-            return True
-        else:
-            return False
+
+    return len(lattice[curr_row_idx]) < len(lattice[row_idx])
 
 def are_first_elements_separated(curr_row_idx, col_idx, next_point_col_idx, max_offset, lattice):
     next_point = lattice[curr_row_idx][next_point_col_idx]
     distance = find_distance(next_point.lng, next_point.lat, lattice[curr_row_idx][col_idx].lng, lattice[curr_row_idx][col_idx].lat)
-    if distance > max_offset:
-        return True
-    else:
-        return False
+
+    return distance > max_offset
 
 def are_last_elements_separated(curr_row_idx, col_idx, prev_point_col_idx, max_offset, lattice):
     prev_point = lattice[curr_row_idx][prev_point_col_idx]
     distance = find_distance(prev_point.lng, prev_point.lat, lattice[curr_row_idx][col_idx].lng, lattice[curr_row_idx][col_idx].lat)
     
-    if distance > max_offset:
-        return True
-    else:
-        return False
+    return distance > max_offset
 
 def should_add_last_element(curr_row_idx, prev_row_idx, col_idx, max_offset, lattice):
     prev_point = lattice[prev_row_idx][len(lattice[prev_row_idx]) - 1]
@@ -236,12 +237,10 @@ def should_add_last_element(curr_row_idx, prev_row_idx, col_idx, max_offset, lat
     
     if distance < max_offset:
         return True
-    else:
-        if len(lattice[curr_row_idx]) < len(lattice[prev_row_idx]):
-            return True
-        else:
-            return False
 
+    return len(lattice[curr_row_idx]) < len(lattice[prev_row_idx])
+
+# TODO - add more cases
 def validate_lattice(max_offset, lattice):
     logging.info("Lattice validation")
 
@@ -276,9 +275,11 @@ def validate_lattice(max_offset, lattice):
                             final_points.append(current_point)
                         else:
                             logging.error("Lattice's points are placed farther than the maximum offset")
+                            
                             return None
                     except:
                         logging.error("Lattice's points are placed farther than the maximum offset")
+                        
                         return None
 
         final_points.append(lattice[i][len(lattice[i]) - 1])
