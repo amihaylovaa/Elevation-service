@@ -1,10 +1,10 @@
 import logging
 from osgeo import gdal
 
-def extract_elevations_from_dem(dem, points):
+def extract_elevations_from_dem(dem_file, points):
         logging.info("Read from DEM")
 
-        src_ds = gdal.Open(dem,  gdal.GA_ReadOnly)
+        src_ds = gdal.Open(dem_file,  gdal.GA_ReadOnly)
         gt = src_ds.GetGeoTransform()
         rb = src_ds.GetRasterBand(1)
         pixel_width = gt[1] # w - e (pixel width)
