@@ -1,11 +1,13 @@
 import logging
 
+from enumeration.dem_data_source import DEMDataSource
+
 def get_approximated_elevations(dem_results, track_points):
     logging.info("Elevation approximation")
 
-    srtm_30m = dem_results['srtm30m']
-    srtm_90m = dem_results['srtm90m']
-    aw_3d_30m = dem_results['aw3d30m']
+    srtm_30m = dem_results[DEMDataSource.SRTM_30_M]
+    srtm_90m = dem_results[DEMDataSource.SRTM_90_M]
+    aw_3d_30m = dem_results[DEMDataSource.ALOS_WORLD_3D_30_M]
     elevations = list()
 
     for i in range(0, len(track_points), 1):
@@ -13,8 +15,12 @@ def get_approximated_elevations(dem_results, track_points):
         srtm_90m_elevation = srtm_90m[i]
         aw_3d_30m_elevation = aw_3d_30m[i]
         
+        elevation = None
         if abs(srtm_90m_elevation - srtm_30m_elevation) > 2.0 or abs(srtm_90m_elevation - aw_3d_30m_elevation) > 2.0:
-            elevations.append((srtm_30m_elevation + aw_3d_30m_elevation) / 2.0)
+            elevation = (srtm_30m_elevation + aw_3d_30m_elevation) / 2
         else:
-            elevations.append((srtm_30m_elevation + srtm_90m_elevation + aw_3d_30m_elevation) / 3.0)
+            elevation = (srtm_30m_elevation + srtm_90m_elevation + aw_3d_30m_elevation) / 3
+        
+        elevations.append(elevation)
+
     return elevations
