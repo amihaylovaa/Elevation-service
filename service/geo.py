@@ -5,6 +5,7 @@ from domain.location import Location
 
 SOUTH_WEST_COORDINATES = 'south-west'
 NORTH_EAST_COORDINATES = 'north-east'
+ONE_DEGREE_LATITUDE_IN_METERS = 111_111.0
 
 def get_bounding_box(route):
     logging.info("Bounding box calculation")
@@ -40,11 +41,11 @@ def calculate_lattice_size(bounding_box):
     logging.info("Lattice size's calculation")
 
     min_location = bounding_box[SOUTH_WEST_COORDINATES]
-    max_location = bounding_box[NORTH_EAST_COORDINATES]
-    bounding_box_width = abs(max_location.lat - min_location.lat)   
+    max_location = bounding_box[NORTH_EAST_COORDINATES]   
     diagonal = find_distance(min_location.lng, min_location.lat, max_location.lng, max_location.lat)
-    bounding_box_width_in_meters = 111_111.0 * bounding_box_width
-    bounding_box_height_in_meters = sqrt(diagonal * diagonal - bounding_box_width_in_meters * bounding_box_width_in_meters)
+    bounding_box_width = abs(max_location.lat - min_location.lat)
+    bounding_box_width_in_meters = ONE_DEGREE_LATITUDE_IN_METERS  * bounding_box_width
+    bounding_box_height_in_meters = sqrt(diagonal ** 2  - bounding_box_width_in_meters ** 2)
 
     return bounding_box_height_in_meters if bounding_box_height_in_meters > bounding_box_width_in_meters else bounding_box_width_in_meters
 
@@ -84,7 +85,7 @@ def calculate_next_point(prev_point, offset, bearing):
 
     return Location(degrees(next_point_lng), degrees(next_point_lat))
 
-def generate_lattice(meter_offset, size, bounding_box):
+def generate_square_lattice(meter_offset, size, bounding_box):
     logging.info("Lattice generation")
 
     square_lattice = list()
@@ -92,7 +93,7 @@ def generate_lattice(meter_offset, size, bounding_box):
 
     for i in range(meter_offset, size, meter_offset):
         row = list()
-        lat_offset = radians(i / 111_111.00)
+        lat_offset = radians(i / ONE_DEGREE_LATITUDE_IN_METERS)
         new_lat = min_location.lat + degrees(lat_offset)
         start_point = Location(min_location.lng, new_lat)
 
@@ -102,8 +103,9 @@ def generate_lattice(meter_offset, size, bounding_box):
         for j in range(meter_offset, size, meter_offset):
             prev_lat = row[k - 1].lat
             prev_lng = row[k - 1].lng
-            lng_offset = radians(meter_offset /  (111_111.00 * cos(radians(prev_lat))))
-            tmp_location = Location((prev_lng + degrees(lng_offset)), prev_lat)
+            lng_offset = radians(meter_offset /  (ONE_DEGREE_LATITUDE_IN_METERS * cos(radians(prev_lat))))
+            tmp_lng = prev_lng + degrees(lng_offset)
+            tmp_location = Location(tmp_lng, prev_lat)
             bearing = calculate_bearing(row[k - 1], tmp_location)
             new_lng = calculate_next_point(row[k - 1], meter_offset, bearing).lng
             new_point = Location(new_lng, prev_lat)

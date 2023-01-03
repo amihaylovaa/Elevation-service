@@ -5,10 +5,11 @@ from flask import Flask, Response, request, json, send_file
 from enumeration.dem_data_source import DEMDataSource
 from enumeration.dem_file_name import DemFileName
 from enumeration.mime_type import MimeType
+from enumeration.status_code import StatusCode
 from gpx.gpx_read import extract_elevation, extract_track_points
 from gpx.gpx_write import add_elevation_element, add_track_points, replace_existing_elevations
 from service.approximation import  get_approximated_elevations
-from service.geo import calculate_lattice_size, clear_points, convert_to_list, generate_lattice, restore_lattice, get_bounding_box, validate_lattice
+from service.geo import calculate_lattice_size, clear_points, convert_to_list, generate_lattice, generate_square_lattice, restore_lattice, get_bounding_box, validate_lattice
 from dem.dem_reader import extract_elevations_from_dem
 import xml.etree.ElementTree as ET
 import sys
@@ -27,20 +28,20 @@ def get_elevation_linear_route():
         gpx_file = request.files.get('gpx_file')
         
         if gpx_file == None:
-                return send_error_response('Gpx file not set', 400)
+                return send_error_response('Gpx file not set', StatusCode.BAD_REQUEST)
 
         tree = None 
         try:
                 tree = ET.parse(gpx_file)
         except:
-               return send_error_response('Invalid gpx', 400)
+               return send_error_response('Invalid gpx', StatusCode.BAD_REQUEST)
 
         root = tree.getroot()
         track_points = extract_track_points(root)
         elevations = extract_elevation(root)
 
         if len(track_points) == 0:
-              return send_error_response('Track points are not added', 400)
+              return send_error_response('Track points are not added', StatusCode.BAD_REQUEST)
 
         elevations_jaxa =  extract_elevations_from_dem(DemFileName.ALOS_WORLD, track_points)
         elevations_srtm_90_m = extract_elevations_from_dem(DemFileName.SRTM_90_M, track_points)
@@ -69,16 +70,16 @@ def get_elevation_closed_contour_route():
         extracted_offset = request.form.get('offset')
 
         if gpx_file == None and extracted_offset == None:
-                return send_error_response('Gpx file and offset are not set', 400)
+                return send_error_response('Gpx file and offset are not set', StatusCode.BAD_REQUEST)
 
         if gpx_file == None:
-                return send_error_response('Gpx file not set', 400)
+                return send_error_response('Gpx file not set', StatusCode.BAD_REQUEST)
         
         if extracted_offset == None:
-                return send_error_response('Offset not set', 400)
+                return send_error_response('Offset not set', StatusCode.BAD_REQUEST)
 
         if not extracted_offset.isdigit():
-                return send_error_response('Offset cannot contain letters or symbols', 400)
+                return send_error_response('Offset cannot contain letters or symbols', StatusCode.BAD_REQUEST)
 
         offset = int(extracted_offset)
 
@@ -89,24 +90,24 @@ def get_elevation_closed_contour_route():
         try:
                 tree = ET.parse(gpx_file)
         except:
-               return send_error_response('Invalid gpx', 400)
+               return send_error_response('Invalid gpx', StatusCode.BAD_REQUEST)
 
         root = tree.getroot()
         track_points = extract_track_points(root)
         
         if len(track_points) < MIN_POINTS_COUNT:
-              return send_error_response('At least 3 points are required', 400)
+              return send_error_response('At least 3 points are required', StatusCode.BAD_REQUEST)
 
         bounding_box = get_bounding_box(track_points)
         lattice_size = calculate_lattice_size(bounding_box)
-        lattice = generate_lattice(int(offset), int(lattice_size), bounding_box)
+        lattice = generate_square_lattice(int(offset), int(lattice_size), bounding_box)
         lattice_as_list = convert_to_list(lattice)
         cleared_points = clear_points(track_points, lattice_as_list)
         restored_lattice = restore_lattice(int(offset), int(lattice_size), cleared_points, lattice)
         valid_lattice = validate_lattice(float(int(offset) + 0.5), restored_lattice)
 
         if valid_lattice == None or len(valid_lattice) == 0:
-                return send_error_response("Cannot generate lattice, please try again with another route or offset", 422)
+                return send_error_response("Cannot generate lattice, please try again with another route or offset", StatusCode.UNPROCESSABLE_ENTITY)
 
         elevations_jaxa =  extract_elevations_from_dem('output_AW3D30.tif', valid_lattice)
         elevations_srtm_90_m = extract_elevations_from_dem('output_SRTMGL3.tif', valid_lattice)
