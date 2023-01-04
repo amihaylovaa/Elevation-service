@@ -36,7 +36,7 @@ def get_bounding_box(route):
     bounding_box[NORTH_EAST_COORDINATES] = Location(max_lng, max_lat)
 
     return bounding_box
-    
+
 def calculate_lattice_size(bounding_box):
     logging.info("Lattice size's calculation")
 
@@ -85,69 +85,79 @@ def calculate_next_point(prev_point, offset, bearing):
 
     return Location(degrees(next_point_lng), degrees(next_point_lat))
 
-def generate_square_lattice(meter_offset, size, bounding_box):
+def generate_square_lattice(meter_offset, lattice_size, bounding_box):
     logging.info("Lattice generation")
 
     square_lattice = list()
     min_location = bounding_box[SOUTH_WEST_COORDINATES]
 
-    for i in range(meter_offset, size, meter_offset):
-        row = list()
+    for i in range(meter_offset, lattice_size, meter_offset):
+        next_row = list()
+
         lat_offset = radians(i / ONE_DEGREE_LATITUDE_IN_METERS)
         new_lat = min_location.lat + degrees(lat_offset)
-        start_point = Location(min_location.lng, new_lat)
+        next_row_start_point = Location(min_location.lng, new_lat)
 
-        row.append(start_point)
+        next_row.append(next_row_start_point)
 
         k = 1
-        for j in range(meter_offset, size, meter_offset):
-            prev_lat = row[k - 1].lat
-            prev_lng = row[k - 1].lng
+        for j in range(meter_offset, lattice_size, meter_offset):
+            prev_point = next_row[k - 1]
+            prev_lat = prev_point.lat
+            prev_lng = prev_point.lng
+            
             lng_offset = radians(meter_offset /  (ONE_DEGREE_LATITUDE_IN_METERS * cos(radians(prev_lat))))
             tmp_lng = prev_lng + degrees(lng_offset)
             tmp_location = Location(tmp_lng, prev_lat)
-            bearing = calculate_bearing(row[k - 1], tmp_location)
-            new_lng = calculate_next_point(row[k - 1], meter_offset, bearing).lng
-            new_point = Location(new_lng, prev_lat)
-            row.append(new_point)
+            
+            bearing = calculate_bearing(prev_point, tmp_location)
+            new_lng = calculate_next_point(prev_point, meter_offset, bearing).lng
+            next_point = Location(new_lng, prev_lat)
+            
+            next_row.append(next_point)
+
             k = k + 1
     
-        square_lattice.append(row)
+        square_lattice.append(next_row)
 
     return square_lattice
 
-def convert_to_list(generated_points):
+def convert_to_list(square_lattice):
     points_list = list()
 
-    for i in range(len(generated_points)):
-        for j in range(len(generated_points[i])):
-            point = Location(generated_points[i][j].lng, generated_points[i][j].lat)
+    for i in range(len(square_lattice)):
+        for j in range(len(square_lattice[i])):
+            point = Location(square_lattice[i][j].lng, square_lattice[i][j].lat)
+            
             points_list.append(point)
-         
+
     return points_list
 
-def clear_points(route, generated):
+def create_list_of_points(generated_square_lattice_points):
+    generated_points = list()
+
+    for p in generated_square_lattice_points:
+        lat = p.lat
+        lng = p.lng        
+        point = Point(lng, lat)
+
+        generated_points.append(point)
+    
+    return generated_points
+
+def clear_points(original_route_points, generated_square_lattice_points):
         logging.info("Clear points")
 
-        original_polygon = Polygon([[p.lng, p.lat] for p in route ])
+        polygon = Polygon([[route_point.lng, route_point.lat] for route_point in original_route_points ])
+        generated_points = create_list_of_points(generated_square_lattice_points)
 
-        final_points = []
-        generated_points = list()
+        final_lattice_points = list()
+        for generated_point in generated_points:
+            if polygon.intersects(generated_point):
+                lattice_point = Location(generated_point.x, generated_point.y)
+                final_lattice_points.append(lattice_point)
 
-        for p in generated:
-                lat = p.lat
-                lng = p.lng
-                point = Point(lng, lat)
-                generated_points.append(point)
-
-        for p in generated_points:
-                 if original_polygon.intersects(p):
-                    point = {"lat": p.y, "lng": p.x}
-                    location = Location(p.x, p.y)
-                    final_points.append(location)
-
-        return final_points
-
+        return final_lattice_points
 
 # TODO - refactor
 def restore_lattice(meter_offset, size, cleared_points, square):

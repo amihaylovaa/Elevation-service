@@ -9,7 +9,7 @@ from enumeration.status_code import StatusCode
 from gpx.gpx_read import extract_elevation, extract_track_points
 from gpx.gpx_write import add_elevation_element, add_track_points, replace_existing_elevations
 from service.approximation import  get_approximated_elevations
-from service.geo import calculate_lattice_size, clear_points, convert_to_list, generate_lattice, generate_square_lattice, restore_lattice, get_bounding_box, validate_lattice
+from service.geo import calculate_lattice_size, clear_points, convert_to_list, generate_square_lattice, restore_lattice, get_bounding_box, validate_lattice
 from dem.dem_reader import extract_elevations_from_dem
 import xml.etree.ElementTree as ET
 import sys
