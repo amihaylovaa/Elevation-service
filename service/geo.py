@@ -41,7 +41,7 @@ def calculate_lattice_size(bounding_box):
     logging.info("Lattice size's calculation")
 
     min_location = bounding_box[SOUTH_WEST_COORDINATES]
-    max_location = bounding_box[NORTH_EAST_COORDINATES]   
+    max_location = bounding_box[NORTH_EAST_COORDINATES]
     diagonal = find_distance(min_location.lng, min_location.lat, max_location.lng, max_location.lat)
     bounding_box_width = abs(max_location.lat - min_location.lat)
     bounding_box_width_in_meters = ONE_DEGREE_LATITUDE_IN_METERS  * bounding_box_width
@@ -116,7 +116,7 @@ def generate_square_lattice(meter_offset, lattice_size, bounding_box):
             
             next_row.append(next_point)
 
-            k = k + 1
+            k += 1
     
         square_lattice.append(next_row)
 
@@ -159,27 +159,28 @@ def clear_points(original_route_points, generated_square_lattice_points):
 
         return final_lattice_points
 
-# TODO - refactor
-def restore_lattice(meter_offset, size, cleared_points, square):
+def restore_lattice(meter_offset, size, cleared_points, final_lattice_points):
     logging.info("Restore lattice")
 
     max_offset = meter_offset + 0.5
     final_points = list()
     lattice = list()
+   
     p = 0
-
     for i in range(meter_offset, size, meter_offset):
         row = list()
         q = 0
         for j in range(meter_offset, size, meter_offset):
-            current_point = square[p][q]
+            current_point = final_lattice_points[p][q]
 
             if (current_point in cleared_points):
                 row.append(current_point)
             q += 1
         p += 1
-        if (len(row) != 0 and len(row) > 1):
+        if (len(row) > 1):
             lattice.append(row)
+        else:
+            return None
         
     for i in range(0, len(lattice), 1):
         row = list()
