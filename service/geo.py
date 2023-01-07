@@ -163,7 +163,7 @@ def restore_lattice(meter_offset, size, cleared_points, final_lattice_points):
     logging.info("Restore lattice")
 
     max_offset = meter_offset + 0.5
-    final_points = list()
+    restored_lattice_points = list()
     lattice = list()
    
     p = 0
@@ -198,12 +198,13 @@ def restore_lattice(meter_offset, size, cleared_points, final_lattice_points):
                         continue
                     if not should_add_point(i, j, max_offset, lattice, len(lattice[i])):
                         continue
-                    if j == len(lattice[i]) - 1 and are_last_elements_separated(i, j, j - 1, max_offset, lattice) and not should_add_last_element(i, i - 1, j - 1, max_offset, lattice):
+                    if j == len(lattice[i]) - 1 and are_last_elements_separated(i, j, j - 2, max_offset, lattice) and not should_add_last_element(i, i - 1, j - 1, max_offset, lattice):
                         break
                     row.append(lattice[i][j])
-        final_points.append(row)
 
-    return final_points
+        restored_lattice_points.append(row)
+
+    return restored_lattice_points
     
 def should_add_point(row_idx, col_idx, max_offset, lattice, lat_size):
     current_point = lattice[row_idx][col_idx]
@@ -215,9 +216,7 @@ def should_add_point(row_idx, col_idx, max_offset, lattice, lat_size):
             upper_distance = find_distance(current_point.lng, current_point.lat, upper_point.lng, upper_point.lat)
             down_distance = find_distance(current_point.lng, current_point.lat, down_point.lng, down_point.lat)
 
-            if upper_distance > max_offset and down_distance > max_offset:
-                return False
-            return True
+            return upper_distance < max_offset and down_distance < max_offset
         else:
             return True
     except:
@@ -225,7 +224,8 @@ def should_add_point(row_idx, col_idx, max_offset, lattice, lat_size):
 
 def should_add_first_element(curr_row_idx, row_idx, col_idx, max_offset, lattice):
     point = lattice[row_idx][col_idx]
-    distance = find_distance(point.lng, point.lat, lattice[curr_row_idx][col_idx].lng, lattice[curr_row_idx][col_idx].lat)
+    point_to_compare = lattice[curr_row_idx][col_idx]
+    distance = find_distance(point.lng, point.lat, point_to_compare.lng, point_to_compare.lat)
     
     if distance > max_offset:
         return False
@@ -234,19 +234,22 @@ def should_add_first_element(curr_row_idx, row_idx, col_idx, max_offset, lattice
 
 def are_first_elements_separated(curr_row_idx, col_idx, next_point_col_idx, max_offset, lattice):
     next_point = lattice[curr_row_idx][next_point_col_idx]
-    distance = find_distance(next_point.lng, next_point.lat, lattice[curr_row_idx][col_idx].lng, lattice[curr_row_idx][col_idx].lat)
+    point_to_compare = lattice[curr_row_idx][col_idx]
+    distance = find_distance(next_point.lng, next_point.lat, point_to_compare.lng, point_to_compare.lat)
 
     return distance > max_offset
 
 def are_last_elements_separated(curr_row_idx, col_idx, prev_point_col_idx, max_offset, lattice):
     prev_point = lattice[curr_row_idx][prev_point_col_idx]
-    distance = find_distance(prev_point.lng, prev_point.lat, lattice[curr_row_idx][col_idx].lng, lattice[curr_row_idx][col_idx].lat)
+    point_to_compare = lattice[curr_row_idx][col_idx]
+    distance = find_distance(prev_point.lng, prev_point.lat, point_to_compare.lng, point_to_compare.lat)
     
     return distance > max_offset
 
 def should_add_last_element(curr_row_idx, prev_row_idx, col_idx, max_offset, lattice):
     prev_point = lattice[prev_row_idx][len(lattice[prev_row_idx]) - 1]
-    distance = find_distance(prev_point.lng, prev_point.lat, lattice[curr_row_idx][col_idx].lng, lattice[curr_row_idx][col_idx].lat)
+    point_to_compare = lattice[curr_row_idx][col_idx]
+    distance = find_distance(prev_point.lng, prev_point.lat, point_to_compare.lng, point_to_compare.lat)
     
     if distance < max_offset:
         return True
