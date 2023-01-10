@@ -1,6 +1,5 @@
 from io import BytesIO
 import logging
-from mimetypes import MimeTypes
 from flask import Flask, Response, request, json, send_file
 from enumeration.dem_data_source import DEMDataSource
 from enumeration.dem_file_name import DemFileName
@@ -9,7 +8,7 @@ from enumeration.status_code import StatusCode
 from gpx.gpx_read import extract_elevation, extract_track_points
 from gpx.gpx_write import add_elevation_element, add_track_points, replace_existing_elevations
 from service.approximation import  get_approximated_elevations
-from service.geo import calculate_lattice_size, clear_points, convert_to_list, generate_square_lattice, restore_lattice, get_bounding_box, validate_lattice
+from service.geo import calculate_lattice_size, clear_points, convert_to_list, generate_square_lattice, get_bounding_box, restore_square_lattice, validate_lattice
 from dem.dem_reader import extract_elevations_from_dem
 import xml.etree.ElementTree as ET
 import sys
@@ -19,18 +18,19 @@ logger = logging.getLogger(__name__)
 MIN_OFFSET = 5
 MAX_OFFSET = 15
 MIN_POINTS_COUNT = 3
+GPX_NAMESPACE = "http://www.topografix.com/GPX/1/1"
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 @app.route("/elevation-service/linear-route/",  methods=['POST'])
 def get_elevation_linear_route():        
-        ET.register_namespace('', "http://www.topografix.com/GPX/1/1")        
+        ET.register_namespace('', GPX_NAMESPACE)        
         
         gpx_file = request.files.get('gpx_file')
         
         if gpx_file == None:
                 return send_error_response('Gpx file not set', StatusCode.BAD_REQUEST)
 
-        tree = None 
+        tree = None
         try:
                 tree = ET.parse(gpx_file)
         except:
@@ -64,7 +64,7 @@ def get_elevation_linear_route():
 
 @app.route("/elevation-service/closed-contour-route/",  methods=['POST'])
 def get_elevation_closed_contour_route():
-        ET.register_namespace('', "http://www.topografix.com/GPX/1/1")        
+        ET.register_namespace('', GPX_NAMESPACE)        
 
         gpx_file = request.files.get('gpx_file')
         extracted_offset = request.form.get('offset')
@@ -103,7 +103,7 @@ def get_elevation_closed_contour_route():
         lattice = generate_square_lattice(int(offset), int(lattice_size), bounding_box)
         lattice_as_list = convert_to_list(lattice)
         cleared_points = clear_points(track_points, lattice_as_list)
-        restored_lattice = restore_lattice(int(offset), int(lattice_size), cleared_points, lattice)
+        restored_lattice = restore_square_lattice(int(offset), int(lattice_size), cleared_points, lattice)
         valid_lattice = validate_lattice(float(int(offset) + 0.5), restored_lattice)
 
         if valid_lattice == None or len(valid_lattice) == 0:
