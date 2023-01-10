@@ -137,9 +137,7 @@ def create_list_of_points(generated_square_lattice_points):
     generated_points = list()
 
     for p in generated_square_lattice_points:
-        lat = p.lat
-        lng = p.lng        
-        point = Point(lng, lat)
+        point = Point(p.lng, p.lat)
 
         generated_points.append(point)
     
@@ -159,16 +157,42 @@ def clear_points(original_route_points, generated_square_lattice_points):
 
         return final_lattice_points
 
-def restore_lattice(meter_offset, size, cleared_points, final_lattice_points):
+def restore_square_lattice(meter_offset, size, cleared_points, final_lattice_points):
     logging.info("Restore lattice")
 
     max_offset = meter_offset + 0.5
     restored_lattice_points = list()
-    lattice = list()
+    current_lattice = convert_list_to_square_lattice(meter_offset, size, final_lattice_points, cleared_points, current_lattice)
    
+    for i in range(0, len(current_lattice), 1):
+        row = list()
+
+        if i == len(current_lattice) - 1:
+                for j in range(0, len(current_lattice[i]), 1):
+                    if j == 0 and are_first_elements_separated(i, j, j + 1, max_offset, current_lattice) and not should_add_first_element(i, i - 1, j, max_offset, current_lattice):
+                       continue
+                    if j == len(current_lattice[i]) - 1 and are_last_elements_separated(i, j, j - 2, max_offset, current_lattice) and not should_add_last_element(i, i - 1, j, max_offset, current_lattice):
+                        break
+                    row.append(current_lattice[i][j])
+        else:
+                for j in range(0, len(current_lattice[i]), 1):
+                    if j == 0 and are_first_elements_separated(i, j, j + 1, max_offset, current_lattice) and not should_add_first_element(i, i + 1, j, max_offset, current_lattice):
+                        continue
+                    if not should_add_point(i, j, max_offset, current_lattice, len(current_lattice[i])):
+                        continue
+                    if j == len(current_lattice[i]) - 1 and are_last_elements_separated(i, j, j - 2, max_offset, current_lattice) and not should_add_last_element(i, i - 1, j - 1, max_offset, current_lattice):
+                        break
+                    row.append(current_lattice[i][j])
+
+        restored_lattice_points.append(row)
+
+    return restored_lattice_points
+
+def convert_list_to_square_lattice(meter_offset, size, final_lattice_points, cleared_points, current_lattice):
     p = 0
     for i in range(meter_offset, size, meter_offset):
         row = list()
+
         q = 0
         for j in range(meter_offset, size, meter_offset):
             current_point = final_lattice_points[p][q]
@@ -176,36 +200,15 @@ def restore_lattice(meter_offset, size, cleared_points, final_lattice_points):
             if (current_point in cleared_points):
                 row.append(current_point)
             q += 1
+
         p += 1
         if (len(row) > 1):
-            lattice.append(row)
+            current_lattice.append(row)
         else:
             return None
-        
-    for i in range(0, len(lattice), 1):
-        row = list()
-
-        if i == len(lattice) - 1:
-                for j in range(0, len(lattice[i]), 1):
-                    if j == 0 and are_first_elements_separated(i, j, j + 1, max_offset, lattice) and not should_add_first_element(i, i - 1, j, max_offset, lattice):
-                       continue
-                    if j == len(lattice[i]) - 1 and are_last_elements_separated(i, j, j - 2, max_offset, lattice) and not should_add_last_element(i, i - 1, j, max_offset, lattice):
-                        break
-                    row.append(lattice[i][j])
-        else:
-                for j in range(0, len(lattice[i]), 1):
-                    if j == 0 and are_first_elements_separated(i, j, j + 1, max_offset, lattice) and not should_add_first_element(i, i + 1, j, max_offset, lattice):
-                        continue
-                    if not should_add_point(i, j, max_offset, lattice, len(lattice[i])):
-                        continue
-                    if j == len(lattice[i]) - 1 and are_last_elements_separated(i, j, j - 2, max_offset, lattice) and not should_add_last_element(i, i - 1, j - 1, max_offset, lattice):
-                        break
-                    row.append(lattice[i][j])
-
-        restored_lattice_points.append(row)
-
-    return restored_lattice_points
     
+    return current_lattice
+
 def should_add_point(row_idx, col_idx, max_offset, lattice, lat_size):
     current_point = lattice[row_idx][col_idx]
 
@@ -256,7 +259,6 @@ def should_add_last_element(curr_row_idx, prev_row_idx, col_idx, max_offset, lat
 
     return len(lattice[curr_row_idx]) < len(lattice[prev_row_idx])
 
-# TODO - add more cases
 def validate_lattice(max_offset, lattice):
     logging.info("Lattice validation")
 

@@ -4,7 +4,7 @@ from domain.location import Location
 from enumeration.gpx_element import GPXElement
 
 LATITUDE_ATTRIBUTE = 'lat'
-LONGITUDE_ATTRIBUTE = 'trkpt'
+LONGITUDE_ATTRIBUTE = 'lon'
 
 def extract_track_points(root):
        logging.info("Track point extraction")
