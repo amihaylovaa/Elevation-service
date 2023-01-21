@@ -10,10 +10,10 @@ ONE_DEGREE_LATITUDE_IN_METERS = 111_111.0
 def get_bounding_box(route):
     logging.info("Bounding box calculation")
 
-    min_lat = 180.0
-    min_lng = 180.0
-    max_lat = 0.0
-    max_lng = 0.0
+    min_lat = -90.0
+    min_lng = -180.0
+    max_lat = 90.0
+    max_lng = 180.0
     bounding_box = {}
 
     for point in route:
@@ -52,7 +52,9 @@ def calculate_lattice_size(bounding_box):
 def find_distance(prev_point_lng, prev_point_lat, current_point_lng, current_point_lat):
     latitude_difference = radians(abs(current_point_lat - prev_point_lat))
     longitude_difference = radians(abs(current_point_lng - prev_point_lng))
-    x = sin(latitude_difference / 2.0) * sin(latitude_difference / 2.0) + cos(radians(prev_point_lat)) * cos(radians(current_point_lat)) * sin(longitude_difference / 2.0) * sin(longitude_difference / 2.0)
+    x = sin(latitude_difference / 2.0) * sin(latitude_difference / 2.0) + cos(
+        radians(prev_point_lat)) * cos(radians(current_point_lat)) * sin(longitude_difference / 2.0) * sin(
+            longitude_difference / 2.0)
     
     dist = 2 * atan2(sqrt(x), sqrt(1 - x))
 
@@ -108,9 +110,9 @@ def generate_square_lattice(meter_offset, lattice_size, bounding_box):
             
             lng_offset = radians(meter_offset /  (ONE_DEGREE_LATITUDE_IN_METERS * cos(radians(prev_lat))))
             tmp_lng = prev_lng + degrees(lng_offset)
-            tmp_location = Location(tmp_lng, prev_lat)
+            tmp_next_point = Location(tmp_lng, prev_lat)
             
-            bearing = calculate_bearing(prev_point, tmp_location)
+            bearing = calculate_bearing(prev_point, tmp_next_point)
             new_lng = calculate_next_point(prev_point, meter_offset, bearing).lng
             next_point = Location(new_lng, prev_lat)
             
@@ -289,11 +291,12 @@ def validate_lattice(max_offset, lattice):
                     try:
                         after_next_point = lattice[i][j + 2]
                         dist = find_distance(next_point.lng, next_point.lat, after_next_point.lng, after_next_point.lat)
+                    
                         if dist <= max_offset:
                             final_points.append(current_point)
                         else:
-                            logging.error("Lattice's points are placed farther than the maximum offset")
-                            
+                            logging.error("Two sequential points are placed farther than the maximum offset")
+
                             return None
                     except:
                         logging.error("Lattice's points are placed farther than the maximum offset")
@@ -301,5 +304,5 @@ def validate_lattice(max_offset, lattice):
                         return None
 
         final_points.append(lattice[i][len(lattice[i]) - 1])
-        
+
     return final_points

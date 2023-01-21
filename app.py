@@ -109,9 +109,9 @@ def get_elevation_closed_contour_route():
         if valid_lattice == None or len(valid_lattice) == 0:
                 return send_error_response("Cannot generate lattice, please try again with another route or offset", StatusCode.UNPROCESSABLE_ENTITY)
 
-        elevations_jaxa =  extract_elevations_from_dem('output_AW3D30.tif', valid_lattice)
-        elevations_srtm_90_m = extract_elevations_from_dem('output_SRTMGL3.tif', valid_lattice)
-        elevations_srtm_30_m = extract_elevations_from_dem('output_SRTMGL1.tif', valid_lattice)
+        elevations_jaxa =  extract_elevations_from_dem(DemFileName.ALOS_WORLD, track_points)
+        elevations_srtm_90_m = extract_elevations_from_dem(DemFileName.SRTM_90_M, track_points)
+        elevations_srtm_30_m = extract_elevations_from_dem(DemFileName.SRTM_30_M, track_points)
         elevations_map = { DEMDataSource.SRTM_30_M: elevations_srtm_30_m, DEMDataSource.SRTM_90_M: elevations_srtm_90_m, DEMDataSource.ALOS_WORLD_3D_30_M: elevations_jaxa }
         approximated_elevations = get_approximated_elevations(elevations_map, valid_lattice)
         
