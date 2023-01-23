@@ -4,6 +4,7 @@ from flask import Flask, Response, request, json, send_file
 from enumeration.dem_data_source import DEMDataSource
 from enumeration.dem_file_name import DemFileName
 from enumeration.mime_type import MimeType
+from enumeration.request_part import RequestPart
 from enumeration.status_code import StatusCode
 from gpx.gpx_read import extract_elevation, extract_track_points
 from gpx.gpx_write import add_elevation_element, add_track_points, replace_existing_elevations
@@ -25,7 +26,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 def get_elevation_linear_route():        
     ET.register_namespace('', GPX_NAMESPACE)        
         
-    gpx_file = request.files.get('gpx_file')
+    gpx_file = request.files.get(RequestPart.GPX_FILE)
         
     if gpx_file == None:
         return send_error_response('Gpx file not set', StatusCode.BAD_REQUEST)
@@ -66,8 +67,8 @@ def get_elevation_linear_route():
 def get_elevation_closed_contour_route():
     ET.register_namespace('', GPX_NAMESPACE)        
 
-    gpx_file = request.files.get('gpx_file')
-    extracted_offset = request.form.get('offset')
+    gpx_file = request.files.get(RequestPart.GPX_FILE)
+    extracted_offset = request.form.get(RequestPart.OFFSET)
 
     if gpx_file == None and extracted_offset == None:
         return send_error_response('Gpx file and offset are not set', StatusCode.BAD_REQUEST)
