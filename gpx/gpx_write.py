@@ -34,9 +34,12 @@ def add_track_points(root, approximated_elevations, generated_track_points):
     last_track_segments = track_segments[len(track_segments) - 1]
     
     for track_point in generated_track_points:
-        track_point_element = ET.SubElement(last_track_segments, TRACK_POINT_TAG, lat = str(track_point.lat), lon = str(track_point.lng))
+        track_point_element = ET.SubElement(
+            last_track_segments, TRACK_POINT_TAG, lat = str(track_point.lat), lon = str(track_point.lng)
+        )
         track_point_element.tail = NEW_LINE
         ele = ET.SubElement(track_point_element, ELEVATION_TAG)
         ele.text = str(approximated_elevations[idx])
         ele.tail = NEW_LINE
+
         idx = idx + 1

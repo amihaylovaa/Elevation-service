@@ -1,0 +1,3 @@
+class StatusCode:
+    BAD_REQUEST = 400
+    UNPROCESSABLE_ENTITY = 422
