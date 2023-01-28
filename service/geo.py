@@ -227,6 +227,7 @@ def should_add_point(row_idx, col_idx, max_offset, lattice, lat_size):
     except:
         return True
 
+# TODO should add elements as parameters
 def should_add_first_element(curr_row_idx, row_idx, col_idx, max_offset, lattice):
     point = lattice[row_idx][col_idx]
     point_to_compare = lattice[curr_row_idx][col_idx]
@@ -237,6 +238,7 @@ def should_add_first_element(curr_row_idx, row_idx, col_idx, max_offset, lattice
 
     return len(lattice[curr_row_idx]) < len(lattice[row_idx])
 
+# TODO should add elements as parameters
 def are_first_elements_separated(curr_row_idx, col_idx, next_point_col_idx, max_offset, lattice):
     next_point = lattice[curr_row_idx][next_point_col_idx]
     point_to_compare = lattice[curr_row_idx][col_idx]
@@ -244,6 +246,7 @@ def are_first_elements_separated(curr_row_idx, col_idx, next_point_col_idx, max_
 
     return distance > max_offset
 
+# TODO should add elements as parameters
 def are_last_elements_separated(curr_row_idx, col_idx, prev_point_col_idx, max_offset, lattice):
     prev_point = lattice[curr_row_idx][prev_point_col_idx]
     point_to_compare = lattice[curr_row_idx][col_idx]
@@ -251,6 +254,7 @@ def are_last_elements_separated(curr_row_idx, col_idx, prev_point_col_idx, max_o
     
     return distance > max_offset
 
+# TODO should add elements as parameters
 def should_add_last_element(curr_row_idx, prev_row_idx, col_idx, max_offset, lattice):
     prev_point = lattice[prev_row_idx][len(lattice[prev_row_idx]) - 1]
     point_to_compare = lattice[curr_row_idx][col_idx]
