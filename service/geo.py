@@ -178,7 +178,6 @@ def restore_square_lattice(meter_offset, size, cleared_points, final_lattice_poi
                     row.append(current_lattice[i][j])
         else:
                 for j in range(0, len(current_lattice[i]), 1):
-
                     if j == 0 and are_first_elements_separated(current_lattice[i][j], current_lattice[i][j + 1], max_offset) and not should_add_first_element(i, i + 1, j, max_offset, current_lattice):
                         continue
                     if not should_add_point(i, j, max_offset, current_lattice, len(current_lattice[i])):
@@ -275,21 +274,22 @@ def validate_lattice(max_offset, lattice):
         for j in range(0, len(lattice[i]) - 1, 1):
             current_point = lattice[i][j]
             next_point = lattice[i][j + 1]
-            dist = find_distance(current_point.lng, current_point.lat, next_point.lng, next_point.lat)
+            distance_between_points = find_distance(current_point.lng, current_point.lat, next_point.lng, next_point.lat)
             
-            if  dist <= max_offset:
+            if  distance_between_points <= max_offset:
                 final_points.append(current_point)
             else:
-                if j == len(lattice) - 2:
-                    logging.error("Lattice's points are placed farther than the maximum offset")
+                if j == 0 or j == len(lattice) - 2:
+                    logging.error("The edge points are placed farther than the maximum offset.")
 
                     return None
                 else:
                     try:
+                        # TODO - extract to a method where to check not only for after the next point
                         after_next_point = lattice[i][j + 2]
-                        dist = find_distance(next_point.lng, next_point.lat, after_next_point.lng, after_next_point.lat)
+                        distance = find_distance(next_point.lng, next_point.lat, after_next_point.lng, after_next_point.lat)
                     
-                        if dist <= max_offset:
+                        if distance <= max_offset:
                             final_points.append(current_point)
                         else:
                             logging.error("Two sequential points are placed farther than the maximum offset")
