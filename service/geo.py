@@ -171,18 +171,19 @@ def restore_square_lattice(meter_offset, size, cleared_points, final_lattice_poi
 
         if i == len(current_lattice) - 1:
                 for j in range(0, len(current_lattice[i]), 1):
-                    if j == 0 and are_first_elements_separated(i, j, j + 1, max_offset, current_lattice) and not should_add_first_element(i, i - 1, j, max_offset, current_lattice):
+                    if j == 0 and are_first_elements_separated(current_lattice[i][j], current_lattice[i][j + 1], max_offset) and not should_add_first_element(i, i - 1, j, max_offset, current_lattice):
                        continue
-                    if j == len(current_lattice[i]) - 1 and are_last_elements_separated(i, j, j - 2, max_offset, current_lattice) and not should_add_last_element(i, i - 1, j, max_offset, current_lattice):
+                    if j == len(current_lattice[i]) - 1 and are_last_elements_separated(current_lattice[i][j], current_lattice[i][j - 2], max_offset) and not should_add_last_element(i, i - 1, j, max_offset, current_lattice):
                         break
                     row.append(current_lattice[i][j])
         else:
                 for j in range(0, len(current_lattice[i]), 1):
-                    if j == 0 and are_first_elements_separated(i, j, j + 1, max_offset, current_lattice) and not should_add_first_element(i, i + 1, j, max_offset, current_lattice):
+
+                    if j == 0 and are_first_elements_separated(current_lattice[i][j], current_lattice[i][j + 1], max_offset) and not should_add_first_element(i, i + 1, j, max_offset, current_lattice):
                         continue
                     if not should_add_point(i, j, max_offset, current_lattice, len(current_lattice[i])):
                         continue
-                    if j == len(current_lattice[i]) - 1 and are_last_elements_separated(i, j, j - 2, max_offset, current_lattice) and not should_add_last_element(i, i - 1, j - 1, max_offset, current_lattice):
+                    if j == len(current_lattice[i]) - 1 and are_last_elements_separated(current_lattice[i][j], current_lattice[i][j - 2], max_offset) and not should_add_last_element(i, i - 1, j - 1, max_offset, current_lattice):
                         break
                     row.append(current_lattice[i][j])
 
@@ -227,7 +228,6 @@ def should_add_point(row_idx, col_idx, max_offset, lattice, lat_size):
     except:
         return True
 
-# TODO should add elements as parameters
 def should_add_first_element(curr_row_idx, row_idx, col_idx, max_offset, lattice):
     point = lattice[row_idx][col_idx]
     point_to_compare = lattice[curr_row_idx][col_idx]
@@ -238,23 +238,16 @@ def should_add_first_element(curr_row_idx, row_idx, col_idx, max_offset, lattice
 
     return len(lattice[curr_row_idx]) < len(lattice[row_idx])
 
-# TODO should add elements as parameters
-def are_first_elements_separated(curr_row_idx, col_idx, next_point_col_idx, max_offset, lattice):
-    next_point = lattice[curr_row_idx][next_point_col_idx]
-    point_to_compare = lattice[curr_row_idx][col_idx]
-    distance = find_distance(next_point.lng, next_point.lat, point_to_compare.lng, point_to_compare.lat)
+def are_first_elements_separated(current_point, next_point, max_offset):
+    distance_between_points = find_distance(current_point.lng, current_point.lat, next_point.lng, next_point.lat)
 
-    return distance > max_offset
+    return distance_between_points > max_offset
 
-# TODO should add elements as parameters
-def are_last_elements_separated(curr_row_idx, col_idx, prev_point_col_idx, max_offset, lattice):
-    prev_point = lattice[curr_row_idx][prev_point_col_idx]
-    point_to_compare = lattice[curr_row_idx][col_idx]
-    distance = find_distance(prev_point.lng, prev_point.lat, point_to_compare.lng, point_to_compare.lat)
+def are_last_elements_separated(current_point, previous_point, max_offset):
+    distance_between_points = find_distance(previous_point.lng, previous_point.lat, current_point.lng, current_point.lat)
     
-    return distance > max_offset
+    return distance_between_points > max_offset
 
-# TODO should add elements as parameters
 def should_add_last_element(curr_row_idx, prev_row_idx, col_idx, max_offset, lattice):
     prev_point = lattice[prev_row_idx][len(lattice[prev_row_idx]) - 1]
     point_to_compare = lattice[curr_row_idx][col_idx]
