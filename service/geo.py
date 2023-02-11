@@ -293,12 +293,19 @@ def validate_lattice(max_offset, lattice):
                 else:
                     try:
                         # TODO - extract to a method where to check not only for after the next point
-                        after_next_point = lattice[i][j + 2]
-                        distance = find_distance(next_point.lng, next_point.lat, after_next_point.lng, after_next_point.lat)
+                        pointCanBeAdded = False
+                        for p in range(j + 2, len(lattice[i]), 1):
+                            after_next_point = lattice[i][p]
+                            distance = find_distance(next_point.lng, next_point.lat, after_next_point.lng, after_next_point.lat)
                     
-                        if distance <= max_offset:
-                            final_points.append(current_point)
-                        else:
+                            if distance <= max_offset:
+                                final_points.append(current_point)
+
+                                pointCanBeAdded = True
+                                break
+
+                            next_point = after_next_point
+                        if not pointCanBeAdded:
                             logging.error("Two sequential points are placed farther than the maximum offset")
 
                             return None
