@@ -271,9 +271,7 @@ def validate_lattice(max_offset, lattice):
 
     for i in range(0, len(lattice), 1):
         if len(lattice[i]) <= 1:
-            if i == 0 or i == len(lattice) - 1:
-                continue
-            else:
+            if i != 0 or i != len(lattice) - 1:
                logging.error("Row with one or zero points")
 
                return None
@@ -291,29 +289,26 @@ def validate_lattice(max_offset, lattice):
 
                     return None
                 else:
-                    try:
-                        # TODO - extract to a method where to check not only for after the next point
-                        pointCanBeAdded = False
-                        for p in range(j + 2, len(lattice[i]), 1):
-                            after_next_point = lattice[i][p]
-                            distance = find_distance(next_point.lng, next_point.lat, after_next_point.lng, after_next_point.lat)
-                    
-                            if distance <= max_offset:
-                                final_points.append(current_point)
-
-                                pointCanBeAdded = True
-                                break
-
-                            next_point = after_next_point
-                        if not pointCanBeAdded:
-                            logging.error("Two sequential points are placed farther than the maximum offset")
-
-                            return None
-                    except:
-                        logging.error("Lattice's points are placed farther than the maximum offset")
-                        
-                        return None
+                    if can_add_point(i, j + 2, max_offset, next_point, lattice):
+                        final_points.append(current_point)
 
         final_points.append(lattice[i][len(lattice[i]) - 1])
 
     return final_points
+
+def can_add_point(i, j, max_offset, next_point, lattice):
+    for k in range(j, len(lattice[i]), 1):
+        try:
+            after_next_point = lattice[i][k]
+        except:
+            logging.error("Lattice's points are placed farther than the maximum offset")
+                        
+            return False
+        else:
+            distance = find_distance(next_point.lng, next_point.lat, after_next_point.lng, after_next_point.lat)
+                    
+            if distance <= max_offset:
+                return True
+
+            next_point = after_next_point
+    return False
