@@ -270,8 +270,7 @@ def validate_lattice(max_offset, lattice):
     final_points = list()
 
     for i in range(0, len(lattice), 1):
-        if len(lattice[i]) <= 1:
-            if i != 0 or i != len(lattice) - 1:
+        if len(lattice[i]) <= 1 and (i != 0 or i != len(lattice) - 1):
                logging.error("Row with one or zero points")
 
                return None
@@ -289,14 +288,14 @@ def validate_lattice(max_offset, lattice):
 
                     return None
                 else:
-                    if can_add_point(i, j + 2, max_offset, next_point, lattice):
+                    if has_row_breaking(i, j + 2, max_offset, next_point, lattice):
                         final_points.append(current_point)
 
         final_points.append(lattice[i][len(lattice[i]) - 1])
 
     return final_points
 
-def can_add_point(i, j, max_offset, next_point, lattice):
+def has_row_breaking(i, j, max_offset, next_point, lattice):
     for k in range(j, len(lattice[i]), 1):
         try:
             after_next_point = lattice[i][k]
