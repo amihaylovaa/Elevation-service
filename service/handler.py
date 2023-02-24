@@ -75,13 +75,13 @@ def handle_closed_contour_route_request(gpx_file, extracted_offset):
 
 def handle_square_lattice(track_points, offset):
     bounding_box = get_bounding_box(track_points)
-    lattice_size = calculate_lattice_size(bounding_box)
-    lattice = generate_square_lattice(int(offset), int(lattice_size), bounding_box)
+    lattice_size = int(calculate_lattice_size(bounding_box))
+    lattice = generate_square_lattice(offset, lattice_size, bounding_box)
     lattice_as_list = convert_to_list(lattice)
     cleared_points = clear_points(track_points, lattice_as_list)
-    restored_lattice = restore_square_lattice(int(offset), int(lattice_size), cleared_points, lattice)
+    restored_lattice = restore_square_lattice(offset, lattice_size, cleared_points, lattice)
 
-    return validate_lattice(float(offset) + 0.5, restored_lattice)
+    return validate_lattice(float(offset), restored_lattice)
 
 def get_offset(received_offset):
     min_offset = 5

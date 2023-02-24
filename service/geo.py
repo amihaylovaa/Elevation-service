@@ -2,6 +2,8 @@ import logging
 from math import radians, cos, sin, asin, sqrt, atan2, degrees
 from shapely.geometry import Point, Polygon
 from domain.location import Location
+from enumeration.error_message import ErrorMessage
+from exception.lattice_generation_error import LatticeGenerationError
 
 SOUTH_WEST_COORDINATES = 'south-west'
 NORTH_EAST_COORDINATES = 'north-east'
@@ -211,11 +213,11 @@ def convert_list_to_square_lattice(meter_offset, size, final_lattice_points, cle
             q += 1
 
         p += 1
-        if (len(row) > 1):
-            current_lattice.append(row)
-        else:
-            return None
-    
+        if (len(row) < 1):
+            raise LatticeGenerationError(ErrorMessage.LATTICE_CANNOT_BE_GENERATED)
+
+        current_lattice.append(row)
+
     return current_lattice
 
 def should_add_point(row_idx, col_idx, max_offset, lattice, lat_size):
@@ -264,7 +266,8 @@ def should_add_last_point(curr_row_idx, prev_row_idx, col_idx, max_offset, latti
 
     return len(lattice[curr_row_idx]) < len(lattice[prev_row_idx])
 
-def validate_lattice(max_offset, lattice):
+def validate_lattice(offset, lattice):
+    max_offset = offset + 0.5
     logging.info("Lattice validation")
 
     final_points = list()
@@ -273,23 +276,25 @@ def validate_lattice(max_offset, lattice):
         if len(lattice[i]) <= 1 and (i != 0 or i != len(lattice) - 1):
                logging.error("Row with one or zero points")
 
-               return None
+               raise LatticeGenerationError(ErrorMessage.LATTICE_CANNOT_BE_GENERATED)
 
         for j in range(0, len(lattice[i]) - 1, 1):
             current_point = lattice[i][j]
             next_point = lattice[i][j + 1]
             distance_between_points = find_distance(current_point.lng, current_point.lat, next_point.lng, next_point.lat)
-            
+
             if  distance_between_points <= max_offset:
                 final_points.append(current_point)
             else:
                 if j == 0 or j == len(lattice) - 2:
                     logging.error("The edge points are placed farther than the maximum offset.")
 
-                    return None
+                    raise LatticeGenerationError(ErrorMessage.LATTICE_CANNOT_BE_GENERATED)
                 else:
-                    if has_row_breaking(i, j + 2, max_offset, next_point, lattice):
-                        final_points.append(current_point)
+                    if not has_row_breaking(i, j + 2, max_offset, next_point, lattice):
+                        raise LatticeGenerationError(ErrorMessage.LATTICE_CANNOT_BE_GENERATED)
+
+                    final_points.append(current_point)                
 
         final_points.append(lattice[i][len(lattice[i]) - 1])
 
@@ -301,11 +306,11 @@ def has_row_breaking(i, j, max_offset, next_point, lattice):
             after_next_point = lattice[i][k]
         except:
             logging.error("Lattice's points are placed farther than the maximum offset")
-                        
+
             return False
         else:
             distance = find_distance(next_point.lng, next_point.lat, after_next_point.lng, after_next_point.lat)
-                    
+    
             if distance <= max_offset:
                 return True
 
