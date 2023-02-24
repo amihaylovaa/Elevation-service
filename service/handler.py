@@ -15,7 +15,7 @@ def handle_linear_route_request(gpx_file):
     ET.register_namespace('', GPX_NAMESPACE)
 
     validate_gpx_file(gpx_file)
-    
+
     try:
         tree = ET.parse(gpx_file)
     except:
@@ -42,15 +42,15 @@ def handle_linear_route_request(gpx_file):
 
     return gpx_file.read()
 
-def handle_closed_contour_route_request(gpx_file, extracted_offset):
+def handle_closed_contour_route_request(received_gpx_file, received_offset):
     ET.register_namespace('', GPX_NAMESPACE)        
 
-    validate_closed_contour_parts(gpx_file, extracted_offset)
+    validate_closed_contour_parts(received_gpx_file, received_offset)
 
-    offset = get_offset(extracted_offset)
+    offset = get_offset(received_offset)
 
     try:
-        tree = ET.parse(gpx_file)
+        tree = ET.parse(received_gpx_file)
     except:
         raise RequestError(ErrorMessage.INVALID_GPX)
 
@@ -61,19 +61,19 @@ def handle_closed_contour_route_request(gpx_file, extracted_offset):
     if len(track_points) < min_points_count:
         raise RequestError(ErrorMessage.MIN_POINTS_REQUIRED)
 
-    square_lattice = handle_square_lattice(track_points, offset)
+    square_lattice = handle_square_lattice_generation(track_points, offset)
     approximated_elevations = get_approximated_elevations(square_lattice)
 
     add_track_points(root, approximated_elevations, square_lattice)
 
-    gpx_file.seek(0)
-    gpx_file.truncate(0)
-    tree.write(gpx_file)
-    gpx_file.seek(0)
+    received_gpx_file.seek(0)
+    received_gpx_file.truncate(0)
+    tree.write(received_gpx_file)
+    received_gpx_file.seek(0)
 
-    return gpx_file.read()
+    return received_gpx_file.read()
 
-def handle_square_lattice(track_points, offset):
+def handle_square_lattice_generation(track_points, offset):
     bounding_box = get_bounding_box(track_points)
     lattice_size = int(calculate_lattice_size(bounding_box))
     lattice = generate_square_lattice(offset, lattice_size, bounding_box)
