@@ -21,7 +21,7 @@ def get_elevation_linear_route():
     try:
         return handle_linear_route_request(received_gpx_file)
     except RequestError as request_error_message:
-        return send_error_response(request_error_message, StatusCode.BAD_REQUEST)
+        return send_error_response(str(request_error_message), StatusCode.BAD_REQUEST)
 
 @app.route("/elevation-service/closed-contour-route/",  methods=['POST'])
 def get_elevation_closed_contour_route():
@@ -31,9 +31,9 @@ def get_elevation_closed_contour_route():
     try:
         return handle_closed_contour_route_request(received_gpx_file, received_offset)
     except RequestError as request_error_message:
-        return send_error_response(request_error_message, StatusCode.BAD_REQUEST)
+        return send_error_response(str(request_error_message), StatusCode.BAD_REQUEST)
     except LatticeGenerationError as lattice_generation_error_message:
-        return send_error_response(lattice_generation_error_message, StatusCode.UNPROCESSABLE_ENTITY)
+        return send_error_response(str(lattice_generation_error_message), StatusCode.UNPROCESSABLE_ENTITY)
 
 def send_error_response(message, status_code):
     body = {"message": message}
