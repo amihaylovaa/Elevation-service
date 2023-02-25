@@ -1,3 +1,4 @@
+import xml.etree.ElementTree as ET
 from dem.dem_reader import extract_elevations_from_dem
 from enumeration.dem_data_source import DEMDataSource
 from enumeration.dem_file_name import DemFileName
@@ -6,7 +7,6 @@ from exception.request_error import RequestError
 from gpx.gpx_read import extract_elevation, extract_track_points
 from gpx.gpx_write import add_elevation_element, add_track_points, replace_existing_elevations
 from service.approximation import calculate_approximated_elevations
-import xml.etree.ElementTree as ET
 from service.geo import calculate_lattice_size, clear_points, convert_to_list, generate_square_lattice, get_bounding_box, restore_square_lattice, validate_lattice
 
 GPX_NAMESPACE = "http://www.topografix.com/GPX/1/1"

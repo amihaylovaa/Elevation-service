@@ -24,13 +24,13 @@ def get_bounding_box(route):
 
         if min_lat > lat:
             min_lat = lat
-            
+
         if min_lng > lng:
             min_lng = lng
 
         if max_lat < lat: 
             max_lat = lat
-            
+
         if max_lng < lng:
             max_lng = lng
 
@@ -57,7 +57,7 @@ def find_distance(prev_point_lng, prev_point_lat, current_point_lng, current_poi
     x = sin(latitude_difference / 2.0) * sin(latitude_difference / 2.0) + cos(
         radians(prev_point_lat)) * cos(radians(current_point_lat)) * sin(longitude_difference / 2.0) * sin(
             longitude_difference / 2.0)
-    
+
     dist = 2 * atan2(sqrt(x), sqrt(1 - x))
 
     return 6_371_000.00 * dist
@@ -109,19 +109,19 @@ def generate_square_lattice(meter_offset, lattice_size, bounding_box):
             prev_point = next_row[k - 1]
             prev_lat = prev_point.lat
             prev_lng = prev_point.lng
-            
+
             lng_offset = radians(meter_offset /  (ONE_DEGREE_LATITUDE_IN_METERS * cos(radians(prev_lat))))
             tmp_lng = prev_lng + degrees(lng_offset)
             tmp_next_point = Location(tmp_lng, prev_lat)
-            
+
             bearing = calculate_bearing(prev_point, tmp_next_point)
             new_lng = calculate_next_point(prev_point, meter_offset, bearing).lng
             next_point = Location(new_lng, prev_lat)
-            
+
             next_row.append(next_point)
 
             k += 1
-    
+
         square_lattice.append(next_row)
 
     return square_lattice
@@ -144,7 +144,7 @@ def create_list_of_points(generated_square_lattice_points):
         point = Point(p.lng, p.lat)
 
         generated_points.append(point)
-    
+
     return generated_points
 
 def clear_points(original_route_points, generated_square_lattice_points):
@@ -167,7 +167,7 @@ def restore_square_lattice(meter_offset, size, cleared_points, final_lattice_poi
     max_offset = meter_offset + 0.5
     restored_lattice_points = list()
     current_lattice = convert_list_to_square_lattice(meter_offset, size, final_lattice_points, cleared_points, current_lattice)
-   
+
     for i in range(0, len(current_lattice), 1):
         row = list()
 
@@ -240,7 +240,7 @@ def should_add_first_point(curr_row_idx, row_idx, col_idx, max_offset, lattice):
     point = lattice[row_idx][col_idx]
     point_to_compare = lattice[curr_row_idx][col_idx]
     distance = find_distance(point.lng, point.lat, point_to_compare.lng, point_to_compare.lat)
-    
+
     if distance > max_offset:
         return False
 
@@ -253,14 +253,14 @@ def are_first_points_separated(current_point, next_point, max_offset):
 
 def are_last_points_separated(current_point, previous_point, max_offset):
     distance_between_points = find_distance(previous_point.lng, previous_point.lat, current_point.lng, current_point.lat)
-    
+
     return distance_between_points > max_offset
 
 def should_add_last_point(curr_row_idx, prev_row_idx, col_idx, max_offset, lattice):
     prev_point = lattice[prev_row_idx][len(lattice[prev_row_idx]) - 1]
     point_to_compare = lattice[curr_row_idx][col_idx]
     distance = find_distance(prev_point.lng, prev_point.lat, point_to_compare.lng, point_to_compare.lat)
-    
+
     if distance < max_offset:
         return True
 
