@@ -1,8 +1,11 @@
+from io import BytesIO
 import xml.etree.ElementTree as ET
+from flask import send_file
 from dem.dem_reader import extract_elevations_from_dem
 from enumeration.dem_data_source import DEMDataSource
 from enumeration.dem_file_name import DemFileName
 from enumeration.error_message import ErrorMessage
+from enumeration.mime_type import MimeType
 from exception.request_error import RequestError
 from gpx.gpx_read import extract_elevation, extract_track_points
 from gpx.gpx_write import add_elevation_element, add_track_points, replace_existing_elevations
@@ -11,13 +14,13 @@ from service.geo import calculate_lattice_size, clear_points, convert_to_list, g
 
 GPX_NAMESPACE = "http://www.topografix.com/GPX/1/1"
 
-def handle_linear_route_request(gpx_file):
+def handle_linear_route_request(received_gpx_file):
     ET.register_namespace('', GPX_NAMESPACE)
 
-    validate_gpx_file(gpx_file)
+    validate_gpx_file(received_gpx_file)
 
     try:
-        tree = ET.parse(gpx_file)
+        tree = ET.parse(received_gpx_file)
     except:
         raise RequestError(ErrorMessage.INVALID_GPX)
 
@@ -35,12 +38,13 @@ def handle_linear_route_request(gpx_file):
     else:
         replace_existing_elevations(root, approximated_elevations)
 
-    gpx_file.seek(0)
-    gpx_file.truncate(0)
-    tree.write(gpx_file)
-    gpx_file.seek(0)
+    received_gpx_file.seek(0)
+    received_gpx_file.truncate(0)
+    tree.write(received_gpx_file)
+    received_gpx_file.seek(0)
+    updated_gpx_file_content = received_gpx_file.read()
 
-    return gpx_file.read()
+    return send_file(BytesIO(updated_gpx_file_content), mimetype=MimeType.GPX_XML, as_attachment=True, download_name=received_gpx_file.filename)
 
 def handle_closed_contour_route_request(received_gpx_file, received_offset):
     ET.register_namespace('', GPX_NAMESPACE)        
@@ -70,8 +74,9 @@ def handle_closed_contour_route_request(received_gpx_file, received_offset):
     received_gpx_file.truncate(0)
     tree.write(received_gpx_file)
     received_gpx_file.seek(0)
+    updated_gpx_file_content = received_gpx_file.read()
 
-    return received_gpx_file.read()
+    return send_file(BytesIO(updated_gpx_file_content), mimetype=MimeType.GPX_XML, as_attachment=True, download_name=received_gpx_file.filename)
 
 def handle_square_lattice_generation(track_points, offset):
     bounding_box = get_bounding_box(track_points)
