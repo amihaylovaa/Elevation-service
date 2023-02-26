@@ -171,11 +171,6 @@ def restore_square_lattice(meter_offset, size, cleared_points, final_lattice_poi
     for i in range(0, len(current_lattice), 1):
         row = list()
 
-        if len(current_lattice[i]) <= 1:
-            logging.info('Row with a single element')
-
-            raise LatticeGenerationError(ErrorMessage.LATTICE_CANNOT_BE_GENERATED)
-
         if i == len(current_lattice) - 1:
                 for j in range(0, len(current_lattice[i]), 1):
                     current_element = current_lattice[i][j]
@@ -207,6 +202,7 @@ def restore_square_lattice(meter_offset, size, cleared_points, final_lattice_poi
     return restored_lattice_points
 
 def convert_list_to_square_lattice(meter_offset, size, final_lattice_points, cleared_points):
+    logging.info('List to lattice conversion')
     p = 0
     current_lattice = list()
     for i in range(meter_offset, size, meter_offset):
@@ -221,8 +217,6 @@ def convert_list_to_square_lattice(meter_offset, size, final_lattice_points, cle
             q += 1
 
         p += 1
-        if (len(row) < 1):
-            raise LatticeGenerationError(ErrorMessage.LATTICE_CANNOT_BE_GENERATED)
 
         current_lattice.append(row)
 
@@ -281,7 +275,8 @@ def validate_lattice(offset, lattice):
     final_points = list()
 
     for i in range(0, len(lattice), 1):
-        if len(lattice[i]) <= 1 and (i != 0 or i != len(lattice) - 1):
+        is_not_first_or_last_row = (i != 0 or i != len(lattice) - 1)
+        if len(lattice[i]) <= 1 and is_not_first_or_last_row and len(lattice[i + 1]) > 1:
                logging.info("Row with one or zero points")
 
                raise LatticeGenerationError(ErrorMessage.LATTICE_CANNOT_BE_GENERATED)
@@ -304,6 +299,7 @@ def validate_lattice(offset, lattice):
 
                     final_points.append(current_point)                
 
+# TODO - fix
         final_points.append(lattice[i][len(lattice[i]) - 1])
 
     return final_points
