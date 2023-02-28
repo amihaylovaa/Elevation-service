@@ -268,6 +268,12 @@ def should_add_last_point(curr_row_idx, prev_row_idx, col_idx, max_offset, latti
 
     return len(lattice[curr_row_idx]) < len(lattice[prev_row_idx])
 
+def has_zero_elements_to_the_end(current_idx, size, lattice):
+    for i in range(current_idx, size, 1):
+        if len(lattice[i]) > 0:
+            return False
+    return True
+
 def validate_lattice(offset, lattice):
     max_offset = offset + 0.5
     logging.info("Lattice validation")
@@ -276,7 +282,7 @@ def validate_lattice(offset, lattice):
 
     for i in range(0, len(lattice), 1):
         is_not_first_or_last_row = (i != 0 or i != len(lattice) - 1)
-        if len(lattice[i]) <= 1 and is_not_first_or_last_row and len(lattice[i + 1]) > 1:
+        if len(lattice[i]) <= 1 and is_not_first_or_last_row and not has_zero_elements_to_the_end(i, len(lattice), lattice):
                logging.info("Row with one or zero points")
 
                raise LatticeGenerationError(ErrorMessage.LATTICE_CANNOT_BE_GENERATED)
@@ -297,10 +303,10 @@ def validate_lattice(offset, lattice):
                     if not has_row_breaking(i, j + 2, max_offset, next_point, lattice):
                         raise LatticeGenerationError(ErrorMessage.LATTICE_CANNOT_BE_GENERATED)
 
-                    final_points.append(current_point)                
+                    final_points.append(current_point)
 
-# TODO - fix
-        final_points.append(lattice[i][len(lattice[i]) - 1])
+        if len(lattice[i]) > 0:
+            final_points.append(lattice[i][len(lattice[i]) - 1])
 
     return final_points
 
