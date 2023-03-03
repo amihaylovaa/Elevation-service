@@ -12,10 +12,10 @@ ONE_DEGREE_LATITUDE_IN_METERS = 111_111.0
 def get_bounding_box(route):
     logging.info("Bounding box calculation")
 
-    min_lat = -90.0
-    min_lng = -180.0
-    max_lat = 90.0
-    max_lng = 180.0
+    min_lat = 90.0
+    min_lng = 180.0
+    max_lat = -90.0
+    max_lng = -180.0
     bounding_box = {}
 
     for point in route:
@@ -46,7 +46,7 @@ def calculate_lattice_size(bounding_box):
     max_location = bounding_box[NORTH_EAST_COORDINATES]
     diagonal = find_distance(min_location.lng, min_location.lat, max_location.lng, max_location.lat)
     bounding_box_width = abs(max_location.lat - min_location.lat)
-    bounding_box_width_in_meters = ONE_DEGREE_LATITUDE_IN_METERS  * bounding_box_width
+    bounding_box_width_in_meters = ONE_DEGREE_LATITUDE_IN_METERS * bounding_box_width
     bounding_box_height_in_meters = sqrt(diagonal ** 2  - bounding_box_width_in_meters ** 2)
 
     return bounding_box_height_in_meters if bounding_box_height_in_meters > bounding_box_width_in_meters else bounding_box_width_in_meters
@@ -166,10 +166,12 @@ def restore_square_lattice(meter_offset, size, cleared_points, final_lattice_poi
 
     max_offset = meter_offset + 0.5
     restored_lattice_points = list()
-    current_lattice = convert_list_to_square_lattice(meter_offset, size, final_lattice_points, cleared_points, current_lattice)
+    current_lattice = convert_list_to_square_lattice(meter_offset, size, final_lattice_points, cleared_points)
 
     for i in range(0, len(current_lattice), 1):
         row = list()
+
+        validate_has_elements_on_current_row(i, current_lattice)
 
         if i == len(current_lattice) - 1:
                 for j in range(0, len(current_lattice[i]), 1):
@@ -184,7 +186,9 @@ def restore_square_lattice(meter_offset, size, cleared_points, final_lattice_poi
                         break
                     row.append(current_element)
         else:
-                for j in range(0, len(current_lattice[i]), 1):
+                for j in range(0, len(current_lattice[i]) - 1, 1):
+                    current_element = current_lattice[i][j]
+
                     if ((j == 0 and are_first_points_separated(current_element, current_lattice[i][j + 1], max_offset) 
                             and not should_add_first_point(i, i + 1, j, max_offset, current_lattice))
                         or not should_add_point(i, j, max_offset, current_lattice, len(current_lattice[i]))):
@@ -199,8 +203,10 @@ def restore_square_lattice(meter_offset, size, cleared_points, final_lattice_poi
 
     return restored_lattice_points
 
-def convert_list_to_square_lattice(meter_offset, size, final_lattice_points, cleared_points, current_lattice):
+def convert_list_to_square_lattice(meter_offset, size, final_lattice_points, cleared_points):
+    logging.info('List to lattice conversion')
     p = 0
+    current_lattice = list()
     for i in range(meter_offset, size, meter_offset):
         row = list()
 
@@ -213,9 +219,7 @@ def convert_list_to_square_lattice(meter_offset, size, final_lattice_points, cle
             q += 1
 
         p += 1
-        if (len(row) < 1):
-            raise LatticeGenerationError(ErrorMessage.LATTICE_CANNOT_BE_GENERATED)
-
+        
         current_lattice.append(row)
 
     return current_lattice
@@ -273,10 +277,8 @@ def validate_lattice(offset, lattice):
     final_points = list()
 
     for i in range(0, len(lattice), 1):
-        if len(lattice[i]) <= 1 and (i != 0 or i != len(lattice) - 1):
-               logging.error("Row with one or zero points")
-
-               raise LatticeGenerationError(ErrorMessage.LATTICE_CANNOT_BE_GENERATED)
+       
+        validate_has_elements_on_current_row(i, lattice)
 
         for j in range(0, len(lattice[i]) - 1, 1):
             current_point = lattice[i][j]
@@ -287,25 +289,40 @@ def validate_lattice(offset, lattice):
                 final_points.append(current_point)
             else:
                 if j == 0 or j == len(lattice) - 2:
-                    logging.error("The edge points are placed farther than the maximum offset.")
+                    logging.info("The edge points are placed farther than the maximum offset.")
 
                     raise LatticeGenerationError(ErrorMessage.LATTICE_CANNOT_BE_GENERATED)
                 else:
                     if not has_row_breaking(i, j + 2, max_offset, next_point, lattice):
                         raise LatticeGenerationError(ErrorMessage.LATTICE_CANNOT_BE_GENERATED)
 
-                    final_points.append(current_point)                
+                    final_points.append(current_point)
 
-        final_points.append(lattice[i][len(lattice[i]) - 1])
+        if len(lattice[i]) > 0:
+            final_points.append(lattice[i][len(lattice[i]) - 1])
 
     return final_points
+
+def validate_has_elements_on_current_row(i, lattice):
+    is_not_first_or_last_row = (i != 0 or i != len(lattice) - 1)
+
+    if len(lattice[i]) <= 1 and is_not_first_or_last_row and has_insufficient_elements_to_the_end(i, len(lattice), lattice):
+        logging.info("Row with one or zero points")
+
+        raise LatticeGenerationError(ErrorMessage.LATTICE_CANNOT_BE_GENERATED)
+
+def has_insufficient_elements_to_the_end(current_idx, size, lattice):
+    for i in range(current_idx, size, 1):
+        if len(lattice[i]) > 1:
+            return True
+    return False
 
 def has_row_breaking(i, j, max_offset, next_point, lattice):
     for k in range(j, len(lattice[i]), 1):
         try:
             after_next_point = lattice[i][k]
         except:
-            logging.error("Lattice's points are placed farther than the maximum offset")
+            logging.info("Lattice's points are placed farther than the maximum offset")
 
             return False
         else:

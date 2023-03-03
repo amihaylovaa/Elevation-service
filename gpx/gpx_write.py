@@ -19,7 +19,7 @@ def add_elevation_element(root, approximated_elevations):
     logging.info("Elevation adding")
 
     idx = 0
-    track_points = root.findall(GPXElement.ELEVATION)
+    track_points = root.findall(GPXElement.TRACK_POINT)
     for track_point in track_points:
         ele = ET.SubElement(track_point, ELEVATION_TAG)
         ele.text = str(approximated_elevations[idx])
