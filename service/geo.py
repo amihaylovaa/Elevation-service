@@ -314,8 +314,8 @@ def validate_has_elements_on_current_row(i, lattice):
 def has_insufficient_elements_to_the_end(current_idx, size, lattice):
     for i in range(current_idx, size, 1):
         if len(lattice[i]) > 1:
-            return False
-    return True
+            return True
+    return False
 
 def has_row_breaking(i, j, max_offset, next_point, lattice):
     for k in range(j, len(lattice[i]), 1):
