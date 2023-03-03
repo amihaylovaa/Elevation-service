@@ -1,6 +1,7 @@
 import logging
-
 from enumeration.dem_data_source import DEMDataSource
+
+MAX_DIFFERENCE = 2.0
 
 def calculate_approximated_elevations(elevations, track_points):
     logging.info("Elevation approximation")
@@ -16,7 +17,8 @@ def calculate_approximated_elevations(elevations, track_points):
         aw_3d_30m_elevation = aw_3d_30m[i]
         
         elevation = None
-        if abs(srtm_90m_elevation - srtm_30m_elevation) > 2.0 or abs(srtm_90m_elevation - aw_3d_30m_elevation) > 2.0:
+        if (abs(srtm_90m_elevation - srtm_30m_elevation) > MAX_DIFFERENCE 
+                or abs(srtm_90m_elevation - aw_3d_30m_elevation) > MAX_DIFFERENCE):
             elevation = (srtm_30m_elevation + aw_3d_30m_elevation) / 2
         else:
             elevation = (srtm_30m_elevation + srtm_90m_elevation + aw_3d_30m_elevation) / 3
