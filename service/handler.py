@@ -2,6 +2,7 @@ from io import BytesIO
 import xml.etree.ElementTree as ET
 from flask import send_file
 from dem.dem_reader import extract_elevations_from_dem
+from domain.location import Location
 from enumeration.dem_data_source import DEMDataSource
 from enumeration.dem_file_name import DemFileName
 from enumeration.error_message import ErrorMessage
@@ -10,7 +11,7 @@ from exception.request_error import RequestError
 from gpx.gpx_read import extract_elevation, extract_track_points
 from gpx.gpx_write import add_elevation_element, add_track_points, replace_existing_elevations
 from service.approximation import calculate_approximated_elevations
-from service.geo import calculate_lattice_size, clear_points, convert_to_list, generate_square_lattice, get_bounding_box, restore_square_lattice, validate_lattice
+from service.geo import calculate_lattice_size, clear_points, generate_square_lattice, get_bounding_box, restore_square_lattice, validate_lattice
 
 GPX_NAMESPACE = "http://www.topografix.com/GPX/1/1"
 
@@ -82,7 +83,7 @@ def handle_square_lattice_generation(track_points, offset):
     bounding_box = get_bounding_box(track_points)
     lattice_size = int(calculate_lattice_size(bounding_box))
     lattice = generate_square_lattice(offset, lattice_size, bounding_box)
-    lattice_as_list = convert_to_list(lattice)
+    lattice_as_list = [Location(element.lng, element.lat) for row in lattice for element in row ]
     cleared_points = clear_points(track_points, lattice_as_list)
     restored_lattice = restore_square_lattice(offset, lattice_size, cleared_points, lattice)
 

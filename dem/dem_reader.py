@@ -23,7 +23,7 @@ def extract_elevations_from_dem(dem_file, track_points):
         point_longitude = point.lng
         row_idx = int((point_longitude - upper_left_corner_longitude) / pixel_width)
         column_idx = -int((upper_left_corner_latitude - point_latitude) / pixel_height)
-            
+
         try:
             elevation = rb.ReadAsArray(row_idx, column_idx, 1, 1)
 

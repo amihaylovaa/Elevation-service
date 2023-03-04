@@ -9,7 +9,7 @@ SOUTH_WEST_COORDINATES = 'south-west'
 NORTH_EAST_COORDINATES = 'north-east'
 ONE_DEGREE_LATITUDE_IN_METERS = 111_111.0
 
-def get_bounding_box(route):
+def get_bounding_box(track_points):
     logging.info("Bounding box calculation")
 
     min_lat = 90.0
@@ -18,7 +18,7 @@ def get_bounding_box(route):
     max_lng = -180.0
     bounding_box = {}
 
-    for point in route:
+    for point in track_points:
         lat = point.lat
         lng = point.lng
 
@@ -126,38 +126,13 @@ def generate_square_lattice(meter_offset, lattice_size, bounding_box):
 
     return square_lattice
 
-def convert_to_list(square_lattice):
-    points_list = list()
-
-    for i in range(len(square_lattice)):
-        for j in range(len(square_lattice[i])):
-            point = Location(square_lattice[i][j].lng, square_lattice[i][j].lat)
-            
-            points_list.append(point)
-
-    return points_list
-
-def create_list_of_points(generated_square_lattice_points):
-    generated_points = list()
-
-    for p in generated_square_lattice_points:
-        point = Point(p.lng, p.lat)
-
-        generated_points.append(point)
-
-    return generated_points
-
 def clear_points(original_route_points, generated_square_lattice_points):
         logging.info("Clear points")
 
         polygon = Polygon([[route_point.lng, route_point.lat] for route_point in original_route_points ])
-        generated_points = create_list_of_points(generated_square_lattice_points)
-
-        final_lattice_points = list()
-        for generated_point in generated_points:
-            if polygon.intersects(generated_point):
-                lattice_point = Location(generated_point.x, generated_point.y)
-                final_lattice_points.append(lattice_point)
+        generated_points = [ Point(point.lng, point.lat) for point in generated_square_lattice_points ]
+        final_lattice_points = [(Location(generated_point.x, generated_point.y)
+                                    for generated_point in generated_points if polygon.intersects(generated_point))]
 
         return final_lattice_points
 
@@ -305,14 +280,15 @@ def validate_lattice(offset, lattice):
 
 def validate_has_elements_on_current_row(i, lattice):
     is_not_first_or_last_row = (i != 0 or i != len(lattice) - 1)
+    lattice_row_size = len(lattice)
 
-    if len(lattice[i]) <= 1 and is_not_first_or_last_row and has_insufficient_elements_to_the_end(i, len(lattice), lattice):
+    if lattice_row_size <= 1 and is_not_first_or_last_row and has_insufficient_elements_to_the_end(i, lattice_row_size, lattice):
         logging.info("Row with one or zero points")
 
         raise LatticeGenerationError(ErrorMessage.LATTICE_CANNOT_BE_GENERATED)
 
-def has_insufficient_elements_to_the_end(current_idx, size, lattice):
-    for i in range(current_idx, size, 1):
+def has_insufficient_elements_to_the_end(current_idx, lattice_row_size, lattice):
+    for i in range(current_idx, lattice_row_size, 1):
         if len(lattice[i]) > 1:
             return True
     return False

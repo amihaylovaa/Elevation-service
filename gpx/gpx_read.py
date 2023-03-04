@@ -25,11 +25,6 @@ def extract_elevation(root):
     logging.info("Elevation extraction")
 
     elevation_elements = root.findall(GPXElement.ELEVATION)
-    elevations = list()
-
-    for element in elevation_elements:
-        elevation = float(element.text)
-
-        elevations.append(elevation)
+    elevations = [float(element.text) for element in elevation_elements]
 
     return elevations
