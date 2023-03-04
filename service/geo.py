@@ -143,33 +143,29 @@ def restore_square_lattice(meter_offset, size, cleared_points, final_lattice_poi
     restored_lattice_points = list()
     current_lattice = convert_list_to_square_lattice(meter_offset, size, final_lattice_points, cleared_points)
 
-    for i in range(0, len(current_lattice), 1):
+    for i, current_row in enumerate(current_lattice):
         row = list()
 
         validate_has_elements_on_current_row(i, current_lattice)
 
         if i == len(current_lattice) - 1:
-                for j in range(0, len(current_lattice[i]), 1):
-                    current_element = current_lattice[i][j]
-
-                    if (j == 0 and are_first_points_separated(current_element, current_lattice[i][j + 1], max_offset) 
+                for j, current_element in enumerate(current_row):
+                    if (j == 0 and are_first_points_separated(current_element, current_row[j + 1], max_offset) 
                             and not should_add_first_point(i, i - 1, j, max_offset, current_lattice)):
                         continue
-                    if (j == len(current_lattice[i]) - 1 
-                        and are_last_points_separated(current_element, current_lattice[i][j - 2], max_offset)
+                    if (j == len(current_row) - 1 
+                        and are_last_points_separated(current_element, current_row[j - 2], max_offset)
                             and not should_add_last_point(i, i - 1, j, max_offset, current_lattice)):
                         break
                     row.append(current_element)
         else:
-                for j in range(0, len(current_lattice[i]) - 1, 1):
-                    current_element = current_lattice[i][j]
-
-                    if ((j == 0 and are_first_points_separated(current_element, current_lattice[i][j + 1], max_offset) 
+                for j, current_element in enumerate(current_row[:-1]):
+                    if ((j == 0 and are_first_points_separated(current_element, current_row[j + 1], max_offset) 
                             and not should_add_first_point(i, i + 1, j, max_offset, current_lattice))
-                        or not should_add_point(i, j, max_offset, current_lattice, len(current_lattice[i]))):
+                        or not should_add_point(i, j, max_offset, current_lattice, len(current_row))):
                         continue
-                    if (j == len(current_lattice[i]) - 1
-                        and are_last_points_separated(current_element, current_lattice[i][j - 2], max_offset)
+                    if (j == len(current_row) - 1
+                        and are_last_points_separated(current_element, current_row[j - 2], max_offset)
                             and not should_add_last_point(i, i - 1, j - 1, max_offset, current_lattice)):
                         break
                     row.append(current_element)
@@ -251,13 +247,12 @@ def validate_lattice(offset, lattice):
 
     final_points = list()
 
-    for i in range(0, len(lattice), 1):
+    for i, current_row in enumerate(lattice):
        
         validate_has_elements_on_current_row(i, lattice)
 
-        for j in range(0, len(lattice[i]) - 1, 1):
-            current_point = lattice[i][j]
-            next_point = lattice[i][j + 1]
+        for j, current_point in enumerate(current_row[:-1]):
+            next_point = current_row[j + 1]
             distance_between_points = find_distance(current_point.lng, current_point.lat, next_point.lng, next_point.lat)
 
             if  distance_between_points <= max_offset:
@@ -273,23 +268,22 @@ def validate_lattice(offset, lattice):
 
                     final_points.append(current_point)
 
-        if len(lattice[i]) > 0:
-            final_points.append(lattice[i][len(lattice[i]) - 1])
+        if current_row:
+            final_points.append(current_row[-1])
 
     return final_points
 
-def validate_has_elements_on_current_row(i, lattice):
-    is_not_first_or_last_row = (i != 0 or i != len(lattice) - 1)
-    lattice_row_size = len(lattice)
+def validate_has_elements_on_current_row(current_idx, lattice):
+    is_not_first_or_last_row = (current_idx != 0 or current_idx != len(lattice) - 1)
 
-    if lattice_row_size <= 1 and is_not_first_or_last_row and has_insufficient_elements_to_the_end(i, lattice_row_size, lattice):
+    if len(lattice[current_idx]) <= 1 and is_not_first_or_last_row and has_insufficient_elements_to_the_end(current_idx, lattice):
         logging.info("Row with one or zero points")
 
         raise LatticeGenerationError(ErrorMessage.LATTICE_CANNOT_BE_GENERATED)
 
-def has_insufficient_elements_to_the_end(current_idx, lattice_row_size, lattice):
-    for i in range(current_idx, lattice_row_size, 1):
-        if len(lattice[i]) > 1:
+def has_insufficient_elements_to_the_end(current_idx, lattice):
+    for idx, current_row in enumerate(lattice, start=current_idx):
+        if len(current_row) > 1:
             return True
     return False
 

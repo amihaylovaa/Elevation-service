@@ -29,12 +29,12 @@ def handle_linear_route_request(received_gpx_file):
     track_points = extract_track_points(root)
     elevations = extract_elevation(root)
 
-    if len(track_points) == 0:
+    if not track_points:
         raise RequestError(ErrorMessage.TRACK_POINTS_NOT_FOUND)
 
     approximated_elevations = get_approximated_elevations(track_points)
 
-    if len(elevations) == 0:
+    if not elevations:
         add_elevation_element(root, approximated_elevations)
     else:
         replace_existing_elevations(root, approximated_elevations)

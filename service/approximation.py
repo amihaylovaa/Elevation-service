@@ -11,10 +11,10 @@ def calculate_approximated_elevations(elevations, track_points):
     aw_3d_30m = elevations[DEMDataSource.ALOS_WORLD_3D_30_M]
     elevations = list()
 
-    for i in range(0, len(track_points), 1):
-        srtm_30m_elevation = srtm_30m[i]
-        srtm_90m_elevation = srtm_90m[i]
-        aw_3d_30m_elevation = aw_3d_30m[i]
+    for idx in range(len(track_points)):
+        srtm_30m_elevation = srtm_30m[idx]
+        srtm_90m_elevation = srtm_90m[idx]
+        aw_3d_30m_elevation = aw_3d_30m[idx]
         
         elevation = None
         if (abs(srtm_90m_elevation - srtm_30m_elevation) > MAX_DIFFERENCE 
