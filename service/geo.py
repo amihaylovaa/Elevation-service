@@ -127,7 +127,7 @@ def generate_square_lattice(meter_offset, lattice_size, bounding_box):
     return square_lattice
 
 def clear_points(original_route_points, generated_square_lattice_points):
-        logging.info("Clear points")
+        logging.info("Clear points which do not lie inside the square lattice")
 
         polygon = Polygon([[route_point.lng, route_point.lat] for route_point in original_route_points ])
         generated_points = [ Point(point.lng, point.lat) for point in generated_square_lattice_points ]

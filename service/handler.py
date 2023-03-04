@@ -52,8 +52,6 @@ def handle_closed_contour_route_request(received_gpx_file, received_offset):
 
     validate_closed_contour_parts(received_gpx_file, received_offset)
 
-    offset = get_offset(received_offset)
-
     try:
         tree = ET.parse(received_gpx_file)
     except:
@@ -61,11 +59,11 @@ def handle_closed_contour_route_request(received_gpx_file, received_offset):
 
     root = tree.getroot()
     track_points = extract_track_points(root)
-    min_points_count = 3
 
-    if len(track_points) < min_points_count:
+    if len(track_points) < 3:
         raise RequestError(ErrorMessage.MIN_POINTS_REQUIRED)
 
+    offset = get_offset(received_offset)
     square_lattice = handle_square_lattice_generation(track_points, offset)
     approximated_elevations = get_approximated_elevations(square_lattice)
 
