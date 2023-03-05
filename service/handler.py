@@ -22,7 +22,7 @@ def handle_linear_route_request(received_gpx_file):
 
     try:
         tree = ET.parse(received_gpx_file)
-    except:
+    except ET.ParseError:
         raise RequestError(ErrorMessage.INVALID_GPX)
 
     root = tree.getroot()
@@ -54,7 +54,7 @@ def handle_closed_contour_route_request(received_gpx_file, received_offset):
 
     try:
         tree = ET.parse(received_gpx_file)
-    except:
+    except ET.ParseError:
         raise RequestError(ErrorMessage.INVALID_GPX)
 
     root = tree.getroot()
