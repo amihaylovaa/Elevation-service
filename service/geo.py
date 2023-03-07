@@ -259,7 +259,7 @@ def validate_lattice(offset, lattice):
     final_points = list()
 
     for i, current_row in enumerate(lattice):
-       
+
         if validate_has_elements_on_current_row(i, lattice):
             break
 
@@ -286,18 +286,15 @@ def validate_lattice(offset, lattice):
 
 def validate_has_elements_on_current_row(current_idx, lattice):
     is_not_first_or_last_row = (current_idx != 0 or current_idx != len(lattice) - 1)
-    sufficient_elements_to_the_end = has_sufficient_elements_to_the_end(current_idx, lattice)
 
-# TODO must not throw exception if to the end are less than 1
-    if len(lattice[current_idx]) <= 1 and is_not_first_or_last_row and not sufficient_elements_to_the_end:
-        print(current_idx)
+    if len(lattice[current_idx]) <= 1 and is_not_first_or_last_row and has_insufficient_elements_to_the_end(current_idx, lattice):
         logging.info("Row with one or zero points")
 
         raise LatticeGenerationError(ErrorMessage.LATTICE_CANNOT_BE_GENERATED)
-    
-    return len(lattice[current_idx]) <= 1 and not sufficient_elements_to_the_end
 
-def has_sufficient_elements_to_the_end(current_idx, lattice):
+    return len(lattice[current_idx]) <= 1 and not has_insufficient_elements_to_the_end(current_idx, lattice)
+
+def has_insufficient_elements_to_the_end(current_idx, lattice):
     for idx in range(current_idx, len(lattice)):
         if len(lattice[idx]) >= 1:
             return True
