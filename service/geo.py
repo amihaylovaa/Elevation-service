@@ -267,22 +267,25 @@ def validate_lattice(offset, lattice):
             next_point = current_row[j + 1]
             distance_between_points = find_distance(current_point.lng, current_point.lat, next_point.lng, next_point.lat)
 
-            if  distance_between_points > max_offset and (j == 0 or j == len(lattice) - 2):
-                    logging.info("The edge points are placed farther than the maximum offset.")
-
-                    raise LatticeGenerationError(ErrorMessage.LATTICE_CANNOT_BE_GENERATED)
+            if  distance_between_points <= max_offset:
+                final_points.append(current_point)
             else:
-                if not has_row_breaking(i, j + 2, max_offset, next_point, lattice):
-                        logging.info("Row breaking.")
+                handle_distance_longer_than_max_offset(i, j, lattice, next_point, offset)
 
-                        raise LatticeGenerationError(ErrorMessage.LATTICE_CANNOT_BE_GENERATED)
-
-            final_points.append(current_point)
-
-        if current_row:
-            final_points.append(current_row[-1])
+        final_points.append(current_row[-1])
 
     return final_points
+
+def handle_distance_longer_than_max_offset(i, j, lattice, next_point, max_offset):
+    if (j == 0 or j == len(lattice) - 2):
+        logging.info("The edge points are placed farther than the maximum offset.")
+
+        raise LatticeGenerationError(ErrorMessage.LATTICE_CANNOT_BE_GENERATED)
+
+    if not has_row_breaking(i, j + 2, max_offset, next_point, lattice):
+        logging.info("Row breaking.")
+
+        raise LatticeGenerationError(ErrorMessage.LATTICE_CANNOT_BE_GENERATED)
 
 def validate_has_elements_on_current_row(current_idx, lattice):
     is_not_first_or_last_row = (current_idx != 0 or current_idx != len(lattice) - 1)
@@ -304,7 +307,7 @@ def has_row_breaking(i, j, max_offset, next_point, lattice):
     for k in range(j, len(lattice[i]), 1):
         after_next_point = lattice[i][k]
         distance = find_distance(next_point.lng, next_point.lat, after_next_point.lng, after_next_point.lat)
-    
+
         if distance <= max_offset:
             return True
 
