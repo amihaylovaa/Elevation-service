@@ -223,6 +223,9 @@ def should_add_point(row_idx, col_idx, max_offset, lattice, lat_size):
         return True
 
 def should_add_first_point(curr_row_idx, row_idx, col_idx, max_offset, lattice):
+    if len(lattice[row_idx]) <= 1:
+        return True
+
     point = lattice[row_idx][col_idx]
     point_to_compare = lattice[curr_row_idx][col_idx]
     distance = find_distance(point.lng, point.lat, point_to_compare.lng, point_to_compare.lat)
@@ -257,7 +260,6 @@ def validate_lattice(offset, lattice):
     logging.info("Lattice validation")
 
     final_points = list()
-
     for i, current_row in enumerate(lattice):
 
         if validate_has_elements_on_current_row(i, lattice):
