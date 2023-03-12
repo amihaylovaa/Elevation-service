@@ -290,7 +290,7 @@ def handle_distance_longer_than_max_offset(i, j, lattice, next_point, max_offset
         raise LatticeGenerationError(ErrorMessage.LATTICE_CANNOT_BE_GENERATED)
 
 def validate_has_elements_on_current_row(current_idx, lattice):
-    is_not_first_or_last_row = (current_idx != 0 or current_idx != len(lattice) - 1)
+    is_not_first_or_last_row = (current_idx != 0 and current_idx != len(lattice) - 1)
 
     if len(lattice[current_idx]) <= 1 and is_not_first_or_last_row and has_insufficient_elements_to_the_end(current_idx, lattice):
         logging.info("Row with one or zero points")
