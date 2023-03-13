@@ -1,2 +1,2 @@
-class LatticeGenerationError(BaseException):
+class LatticeGenerationError(Exception):
     pass
