@@ -158,31 +158,34 @@ def restore_square_lattice(meter_offset, size, cleared_points, final_lattice_poi
         if validate_has_elements_on_current_row(i, current_lattice):
             break
 
-        if i == len(current_lattice) - 1:
-                for j, current_element in enumerate(current_row):
-                    if (j == 0 and are_first_points_separated(current_element, current_row[j + 1], max_offset) 
-                            and not should_add_first_point(i, i - 1, j, max_offset, current_lattice)):
-                        continue
-                    if (j == len(current_row) - 1 
-                        and are_last_points_separated(current_element, current_row[j - 2], max_offset)
-                            and not should_add_last_point(i, i - 1, j, max_offset, current_lattice)):
-                        break
-                    row.append(current_element)
-        else:
-                for j, current_element in enumerate(current_row[:-1]):
-                    if ((j == 0 and are_first_points_separated(current_element, current_row[j + 1], max_offset) 
-                            and not should_add_first_point(i, i + 1, j, max_offset, current_lattice))
-                        or not should_add_point(i, j, max_offset, current_lattice, len(current_row))):
-                        continue
-                    if (j == len(current_row) - 1
-                        and are_last_points_separated(current_element, current_row[j - 2], max_offset)
-                            and not should_add_last_point(i, i - 1, j - 1, max_offset, current_lattice)):
-                        break
-                    row.append(current_element)
-
+        for j, current_element in enumerate(current_row):
+            if has_start_points_issues(i, j, max_offset, current_element, current_row, current_lattice):
+                continue
+            if has_end_points_issues(i, j, max_offset, current_element, current_row, current_lattice):
+                break
+            row.append(current_element)
         restored_lattice_points.append(row)
 
     return restored_lattice_points
+
+# TODO current_row and current_element can be extracted from current_lattice
+def has_start_points_issues(i, j, max_offset, current_element, current_row, current_lattice):
+    if i == len(current_lattice) - 1:
+        return (j == 0 and j != len(current_row) - 1 and are_start_points_separated(current_element, current_row[j + 1], max_offset) 
+            and not should_add_first_point(i, i - 1, j, max_offset, current_lattice))
+
+    return (j == 0 and are_start_points_separated(current_element, current_row[j + 1], max_offset) 
+        and not should_add_first_point(i, i + 1, j, max_offset, current_lattice)) or not should_add_point(i, j, max_offset, current_lattice, len(current_row))
+
+def has_end_points_issues(i, j, max_offset, current_element, current_row, current_lattice):
+    if i == len(current_lattice) - 1:
+        return j == (len(current_row) - 1 
+                        and are_last_points_separated(current_element, current_row[j - 2], max_offset)
+                            and not should_add_last_point(i, i - 1, j, max_offset, current_lattice))
+            
+    return (j == len(current_row) - 1
+                        and are_last_points_separated(current_element, current_row[j - 2], max_offset)
+                            and not should_add_last_point(i, i - 1, j - 1, max_offset, current_lattice))
 
 def convert_list_to_square_lattice(meter_offset, size, final_lattice_points, cleared_points):
     logging.info('List to lattice conversion')
@@ -235,7 +238,7 @@ def should_add_first_point(curr_row_idx, row_idx, col_idx, max_offset, lattice):
 
     return len(lattice[curr_row_idx]) < len(lattice[row_idx])
 
-def are_first_points_separated(current_point, next_point, max_offset):
+def are_start_points_separated(current_point, next_point, max_offset):
     distance_between_points = find_distance(current_point.lng, current_point.lat, next_point.lng, next_point.lat)
 
     return distance_between_points > max_offset
