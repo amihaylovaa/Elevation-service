@@ -159,25 +159,33 @@ def restore_square_lattice(meter_offset, size, cleared_points, final_lattice_poi
             break
 
         for j, current_element in enumerate(current_row):
-            if has_start_points_issues(i, j, max_offset, current_element, current_row, current_lattice):
+            if has_start_points_issues(i, j, max_offset, current_lattice):
                 continue
-            if has_end_points_issues(i, j, max_offset, current_element, current_row, current_lattice):
+            if has_end_points_issues(i, j, max_offset, current_lattice):
                 break
             row.append(current_element)
         restored_lattice_points.append(row)
 
     return restored_lattice_points
 
-# TODO current_row and current_element can be extracted from current_lattice
-def has_start_points_issues(i, j, max_offset, current_element, current_row, current_lattice):
+def has_start_points_issues(i, j, max_offset, current_lattice):
+    current_row = current_lattice[i]
+    current_element = current_row[j]
+
+    if j == len(current_row) - 1:
+        return True
+
     if i == len(current_lattice) - 1:
-        return (j == 0 and j != len(current_row) - 1 and are_start_points_separated(current_element, current_row[j + 1], max_offset) 
+        return (j == 0 and are_start_points_separated(current_element, current_row[j + 1], max_offset) 
             and not should_add_first_point(i, i - 1, j, max_offset, current_lattice))
 
     return (j == 0 and are_start_points_separated(current_element, current_row[j + 1], max_offset) 
         and not should_add_first_point(i, i + 1, j, max_offset, current_lattice)) or not should_add_point(i, j, max_offset, current_lattice, len(current_row))
 
-def has_end_points_issues(i, j, max_offset, current_element, current_row, current_lattice):
+def has_end_points_issues(i, j, max_offset, current_lattice):
+    current_row = current_lattice[i]
+    current_element = current_row[j]
+
     if i == len(current_lattice) - 1:
         return j == (len(current_row) - 1 
                         and are_last_points_separated(current_element, current_row[j - 2], max_offset)
