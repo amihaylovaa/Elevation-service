@@ -1,2 +1,2 @@
-class RequestError(BaseException):
+class RequestError(Exception):
     pass

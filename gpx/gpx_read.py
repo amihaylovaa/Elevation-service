@@ -1,5 +1,4 @@
 import logging
-import xml.etree.ElementTree as ET
 from domain.location import Location
 from enumeration.gpx_element import GPXElement
 
@@ -9,25 +8,23 @@ LONGITUDE_ATTRIBUTE = 'lon'
 def extract_track_points(root):
     logging.info("Track point extraction")
 
-    locations = list()
+    track_point_elements = root.findall(GPXElement.TRACK_POINT)
+    track_points = list()
 
-    for element in root.findall(GPXElement.TRACK_POINT):
+    for element in track_point_elements:
         attributes = element.attrib
         lat = float(attributes[LATITUDE_ATTRIBUTE])
-        lng = float(attributes[LONGITUDE_ATTRIBUTE])
-               
-        location = Location(lng, lat)
-        locations.append(location)
+        lng = float(attributes[LONGITUDE_ATTRIBUTE])               
+        track_point = Location(lng, lat)
+
+        track_points.append(track_point)
        
-    return locations
+    return track_points
 
 def extract_elevation(root):
     logging.info("Elevation extraction")
 
-    elevations = list()
-
-    for element in root.findall(GPXElement.ELEVATION):
-        elevation = float(element.text)
-        elevations.append(elevation)
+    elevation_elements = root.findall(GPXElement.ELEVATION)
+    elevations = [float(element.text) for element in elevation_elements]
 
     return elevations
