@@ -81,7 +81,7 @@ def handle_square_lattice_generation(track_points, offset):
     bounding_box = get_bounding_box(track_points)
     lattice_size = int(calculate_lattice_size(bounding_box))
     lattice = generate_square_lattice(offset, lattice_size, bounding_box)
-    lattice_as_list = [Location(element.lng, element.lat) for row in lattice for element in row ]
+    lattice_as_list = [Location(element.lng, element.lat) for row in lattice for element in row]
     cleared_points = clear_points(track_points, lattice_as_list)
     restored_lattice = restore_square_lattice(offset, lattice_size, cleared_points, lattice)
 
@@ -101,7 +101,7 @@ def get_approximated_elevations(track_points):
     elevations_jaxa =  extract_elevations_from_dem(DemFileName.ALOS_WORLD, track_points)
     elevations_srtm_90_m = extract_elevations_from_dem(DemFileName.SRTM_90_M, track_points)
     elevations_srtm_30_m = extract_elevations_from_dem(DemFileName.SRTM_30_M, track_points)
-    elevations = { DEMDataSource.SRTM_30_M: elevations_srtm_30_m, DEMDataSource.SRTM_90_M: elevations_srtm_90_m, DEMDataSource.ALOS_WORLD_3D_30_M: elevations_jaxa }
+    elevations = {DEMDataSource.SRTM_30_M: elevations_srtm_30_m, DEMDataSource.SRTM_90_M: elevations_srtm_90_m, DEMDataSource.ALOS_WORLD_3D_30_M: elevations_jaxa}
 
     return calculate_approximated_elevations(elevations, track_points)
 
