@@ -35,6 +35,6 @@ def get_elevation_closed_contour_route():
         return send_error_response(str(lattice_generation_error_message), StatusCode.UNPROCESSABLE_ENTITY)
 
 def send_error_response(message, status_code):
-    body = { "message": message }
+    body = {"message": message}
 
     return Response(json.dumps(body), status_code, mimetype=MimeType.JSON)

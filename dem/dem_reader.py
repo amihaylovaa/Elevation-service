@@ -29,6 +29,8 @@ def extract_elevations_from_dem(dem_file, track_points):
 
             elevations.append(float(elevation[0][0]))
         except:
+            logging.info('Elevation does not exsit')
+
             elevations.append(0)
 
     src_ds = None

@@ -81,7 +81,7 @@ def handle_square_lattice_generation(track_points, offset):
     bounding_box = get_bounding_box(track_points)
     lattice_size = int(calculate_lattice_size(bounding_box))
     lattice = generate_square_lattice(offset, lattice_size, bounding_box)
-    lattice_as_list = [Location(element.lng, element.lat) for row in lattice for element in row ]
+    lattice_as_list = [Location(element.lng, element.lat) for row in lattice for element in row]
     cleared_points = clear_points(track_points, lattice_as_list)
     restored_lattice = restore_square_lattice(offset, lattice_size, cleared_points, lattice)
 
@@ -101,15 +101,15 @@ def get_approximated_elevations(track_points):
     elevations_jaxa =  extract_elevations_from_dem(DemFileName.ALOS_WORLD, track_points)
     elevations_srtm_90_m = extract_elevations_from_dem(DemFileName.SRTM_90_M, track_points)
     elevations_srtm_30_m = extract_elevations_from_dem(DemFileName.SRTM_30_M, track_points)
-    elevations = { DEMDataSource.SRTM_30_M: elevations_srtm_30_m, DEMDataSource.SRTM_90_M: elevations_srtm_90_m, DEMDataSource.ALOS_WORLD_3D_30_M: elevations_jaxa }
+    elevations = {DEMDataSource.SRTM_30_M: elevations_srtm_30_m, DEMDataSource.SRTM_90_M: elevations_srtm_90_m, DEMDataSource.ALOS_WORLD_3D_30_M: elevations_jaxa}
 
     return calculate_approximated_elevations(elevations, track_points)
 
 def validate_closed_contour_parts(gpx_file, extracted_offset):
-    if gpx_file == None and extracted_offset == None:
+    if gpx_file is None and extracted_offset is None:
         raise RequestError(ErrorMessage.GPX_FILE_AND_OFFSET_NOT_SET)
 
-    if extracted_offset == None:
+    if extracted_offset is None:
         raise RequestError(ErrorMessage.OFFSET_NOT_SET)
 
     if not extracted_offset.isdigit():
@@ -118,5 +118,5 @@ def validate_closed_contour_parts(gpx_file, extracted_offset):
     validate_gpx_file(gpx_file)
 
 def validate_gpx_file(gpx_file):
-    if gpx_file == None:
+    if gpx_file is None:
         raise RequestError(ErrorMessage.GPX_FILE_NOT_SET)

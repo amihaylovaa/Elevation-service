@@ -47,20 +47,20 @@ def calculate_lattice_size(bounding_box):
     diagonal = find_distance(min_location.lng, min_location.lat, max_location.lng, max_location.lat)
     bbox_width = abs(max_location.lat - min_location.lat)
     bbox_width_in_meters = ONE_DEGREE_LATITUDE_IN_METERS * bbox_width
-    bbox_height_in_meters = sqrt(diagonal ** 2  - bbox_width_in_meters ** 2)
+    bbox_height_in_meters = sqrt(diagonal**2  - bbox_width_in_meters**2)
 
     return bbox_height_in_meters if bbox_height_in_meters > bbox_width_in_meters else bbox_width_in_meters
 
 def find_distance(prev_point_lng, prev_point_lat, current_point_lng, current_point_lat):
     latitude_difference = radians(abs(current_point_lat - prev_point_lat))
     longitude_difference = radians(abs(current_point_lng - prev_point_lng))
-    x = sin(latitude_difference / 2.0) * sin(latitude_difference / 2.0) + cos(
-        radians(prev_point_lat)) * cos(radians(current_point_lat)) * sin(longitude_difference / 2.0) * sin(
-            longitude_difference / 2.0)
+    x = sin(latitude_difference/2.0) * sin(latitude_difference/2.0) + cos(
+        radians(prev_point_lat)) * cos(radians(current_point_lat)) * sin(longitude_difference/2.0) * sin(
+            longitude_difference/2.0)
 
-    dist = 2 * atan2(sqrt(x), sqrt(1 - x))
+    dist = 2 * atan2(sqrt(x), sqrt(1-x))
 
-    return 6_371_000.00 * dist
+    return 6_371_000.00*dist
 
 def calculate_bearing(prev_point, next_point):
     prev_point_lat = radians(prev_point.lat)
@@ -98,7 +98,7 @@ def generate_square_lattice(meter_offset, lattice_size, bounding_box):
     for i in range(meter_offset, lattice_size, meter_offset):
         next_row = list()
 
-        lat_offset = radians(i / ONE_DEGREE_LATITUDE_IN_METERS)
+        lat_offset = radians(i/ONE_DEGREE_LATITUDE_IN_METERS)
         new_lat = min_location.lat + degrees(lat_offset)
         next_row_start_point = Location(min_location.lng, new_lat)
 
@@ -134,8 +134,8 @@ def calculate_next_point_longitude(prev_point, meter_offset):
 def clear_points(original_route_points, generated_square_lattice_points):
     logging.info("Clear points which do not lie inside the square lattice")
 
-    polygon = Polygon([[route_point.lng, route_point.lat] for route_point in original_route_points ])
-    generated_points = [ Point(point.lng, point.lat) for point in generated_square_lattice_points ]
+    polygon = Polygon([[route_point.lng, route_point.lat] for route_point in original_route_points])
+    generated_points = [Point(point.lng, point.lat) for point in generated_square_lattice_points]
     final_lattice_points = list()
 
     for generated_point in generated_points:
@@ -267,7 +267,7 @@ def should_add_last_point(curr_row_idx, prev_row_idx, col_idx, max_offset, latti
     return len(lattice[curr_row_idx]) < len(lattice[prev_row_idx])
 
 def validate_lattice(offset, lattice):
-    max_offset = offset + 0.5
+    max_offset = offset+0.5
     logging.info("Lattice validation")
 
     final_points = list()
