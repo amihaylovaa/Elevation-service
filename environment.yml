@@ -1,4 +1,4 @@
-name: elevation-service-dem
+name: elevation-service
 channels:
   - conda-forge
 dependencies:
