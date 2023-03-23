@@ -4,7 +4,7 @@ from enumeration.request_part import RequestPart
 from enumeration.status_code import StatusCode
 from exception.lattice_generation_error import LatticeGenerationError
 from exception.request_error import RequestError
-from service.handler import handle_closed_contour_route_request, handle_linear_route_request
+from service.request_handler import handle_closed_contour_route_request, handle_linear_route_request
 import xml.etree.ElementTree as ET
 import sys
 import logging
