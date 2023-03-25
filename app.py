@@ -38,3 +38,6 @@ def send_error_response(message, status_code):
     body = {"message": message}
 
     return Response(json.dumps(body), status_code, mimetype=MimeType.JSON)
+
+if __name__ == '__main__':
+    app.run(host="0.0.0.0")
