@@ -10,4 +10,4 @@ SHELL ["conda", "run", "-n", "elevation-service", "/bin/bash", "-c"]
 
 ENV FLASK_APP=app.py
 
-CMD ["flask", "run"]
+CMD ["bash", "-c", "source activate elevation-service && python app.py"]
