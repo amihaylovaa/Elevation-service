@@ -10,4 +10,4 @@ SHELL ["conda", "run", "-n", "elevation-service", "/bin/bash", "-c"]
 
 ENV FLASK_APP=app.py
 
-CMD ["bash", "-c", "source activate elevation-service && python app.py"]
+ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "elevation-service", "python", "app.py"]
