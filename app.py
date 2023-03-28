@@ -4,7 +4,7 @@ from enumeration.request_part import RequestPart
 from enumeration.status_code import StatusCode
 from exception.lattice_generation_error import LatticeGenerationError
 from exception.request_error import RequestError
-from service.handler import handle_closed_contour_route_request, handle_linear_route_request
+from service.request_handler import handle_closed_contour_route_request, handle_linear_route_request
 import xml.etree.ElementTree as ET
 import sys
 import logging
@@ -38,3 +38,6 @@ def send_error_response(message, status_code):
     body = {"message": message}
 
     return Response(json.dumps(body), status_code, mimetype=MimeType.JSON)
+
+if __name__ == '__main__':
+    app.run(host="0.0.0.0")
