@@ -20,7 +20,7 @@ Request body :
 
 ## Closed contour
 When the route is closed contour a square lattice of track points is generated within the area closed by the contour. 
-Then for the generated points are aggregated elevations and included in the GPX file.
+Then elevations for the generated points are aggregated and both the points and the corresponding elevations are included in the GPX file.
 Besides the gpx file an offset must be included in the request - 5m or 15m, which determines the distance between each point of the square lattice.
 
 End point - `/elevation-service/closed-contour-route/`
