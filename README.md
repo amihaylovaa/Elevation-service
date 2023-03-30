@@ -34,7 +34,7 @@ Request body :
 }
 ````
 
-The square lattice is formed by 7 stepes:
+** The square lattice is formed by 7 stepes: **
 
 1) Extracting the track points of the gpx file
 2) Defining the bounding box of the contour (represented the route) 
