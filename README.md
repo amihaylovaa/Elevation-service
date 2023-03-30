@@ -1,5 +1,5 @@
-**Elevation service** is a REST-based web application written in Python and build with Flask which aggregates elevations extracted 
-from three different Digital Elevation Model (DEM) files.
+**Elevation service** is a REST-based web application written in Python and build with Flask which provides elevations aggregated 
+from three different Digital Elevation Model (DEM) files and calculated by a simple algorithm.
 
 The application receives a GPX file which describes either a linear route or a closed contour.
 
@@ -33,3 +33,5 @@ Request body :
   "offset": <5 or 15>
 }
 ````
+
+
