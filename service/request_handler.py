@@ -4,7 +4,7 @@ from flask import send_file
 from dem.dem_reader import extract_elevations_from_dem
 from domain.location import Location
 from enumeration.dem_data_source import DEMDataSource
-from enumeration.dem_file_name import DemFileName
+#from enumeration.dem_file_name import DemFileName
 from enumeration.error_message import ErrorMessage
 from enumeration.mime_type import MimeType
 from exception.request_error import RequestError
@@ -98,9 +98,9 @@ def get_offset(received_offset):
     return offset
 
 def get_approximated_elevations(track_points):
-    elevations_jaxa =  extract_elevations_from_dem(DemFileName.ALOS_WORLD, track_points)
-    elevations_srtm_90_m = extract_elevations_from_dem(DemFileName.SRTM_90_M, track_points)
-    elevations_srtm_30_m = extract_elevations_from_dem(DemFileName.SRTM_30_M, track_points)
+    elevations_jaxa = [] #extract_elevations_from_dem(DemFileName.ALOS_WORLD, track_points)
+    elevations_srtm_90_m = [] #extract_elevations_from_dem(DemFileName.SRTM_90_M, track_points)
+    elevations_srtm_30_m = [] #extract_elevations_from_dem(DemFileName.SRTM_30_M, track_points)
     elevations = {DEMDataSource.SRTM_30_M: elevations_srtm_30_m, DEMDataSource.SRTM_90_M: elevations_srtm_90_m, DEMDataSource.ALOS_WORLD_3D_30_M: elevations_jaxa}
 
     return calculate_approximated_elevations(elevations, track_points)
