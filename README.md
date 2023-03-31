@@ -46,11 +46,11 @@ Request body :
 
 ![1) &&2) ](https://github.com/amihaylovaa/Elevation-service/blob/main/assets/bbox.png)
  
-![3) && 4]](https://github.com/amihaylovaa/Elevation-service/blob/main/assets/bbox_frame.png)
+![3) && 4) ](https://github.com/amihaylovaa/Elevation-service/blob/main/assets/bbox_frame.png)
 
 ![5) && 6) && 7)](https://github.com/amihaylovaa/Elevation-service/blob/main/assets/generated.png)
 
-![Final result]https://github.com/amihaylovaa/Elevation-service/blob/main/assets/final.png
+![]https://github.com/amihaylovaa/Elevation-service/blob/main/assets/final.png
 
 
  
