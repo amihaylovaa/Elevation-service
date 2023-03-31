@@ -44,7 +44,7 @@ Request body :
 6) Square lattice restoration
 7) Square lattice validation
 
-!(https://github.com/amihaylovaa/Elevation-service/blob/main/assets/bbox.png)
+![1) &&2) ](https://github.com/amihaylovaa/Elevation-service/blob/main/assets/bbox.png)
  
 ![3) && 4]](https://github.com/amihaylovaa/Elevation-service/blob/main/assets/bbox_frame.png)
 
