@@ -50,7 +50,7 @@ Request body :
 
 ![5) && 6) && 7)](https://github.com/amihaylovaa/Elevation-service/blob/main/assets/generated.png)
 
-![]https://github.com/amihaylovaa/Elevation-service/blob/main/assets/final.png
+![](https://github.com/amihaylovaa/Elevation-service/blob/main/assets/final.png)
 
 
  
